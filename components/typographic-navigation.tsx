@@ -78,9 +78,12 @@ export function TypographicNavigation({ activeSection, setActiveSection, isTrans
                 >
                   <motion.span
                     className="inline-block relative"
-                    initial={{ color: "#000000" }}
+                    initial={{ color: "hsl(var(--foreground))" }}
                     animate={{
-                      color: hoveredItem === item.id ? "#6b5b73" : "#000000",
+                      color:
+                        hoveredItem === item.id
+                          ? "hsl(var(--primary))"
+                          : "hsl(var(--foreground))",
                     }}
                     transition={{
                       duration: 0.3,
@@ -90,7 +93,7 @@ export function TypographicNavigation({ activeSection, setActiveSection, isTrans
                     {item.label}
                   </motion.span>
                   <motion.div
-                    className="absolute bottom-0 left-1/2 transform -translate-x-1/2 h-1 bg-[#6b5b73]"
+                    className="absolute bottom-0 left-1/2 transform -translate-x-1/2 h-1 bg-primary"
                     initial={{ width: 0 }}
                     animate={{ width: hoveredItem === item.id ? "80%" : 0 }}
                     transition={{
@@ -137,9 +140,12 @@ export function TypographicNavigation({ activeSection, setActiveSection, isTrans
                 >
                   <motion.span
                     className="inline-block relative"
-                    initial={{ color: "#000000" }}
+                    initial={{ color: "hsl(var(--foreground))" }}
                     animate={{
-                      color: hoveredItem === item.id ? "#6b5b73" : "#000000",
+                      color:
+                        hoveredItem === item.id
+                          ? "hsl(var(--primary))"
+                          : "hsl(var(--foreground))",
                     }}
                     transition={{
                       duration: 0.3,
@@ -149,7 +155,7 @@ export function TypographicNavigation({ activeSection, setActiveSection, isTrans
                     {item.label}
                   </motion.span>
                   <motion.div
-                    className="absolute bottom-0 left-0 h-1 bg-[#6b5b73]"
+                    className="absolute bottom-0 left-0 h-1 bg-primary"
                     initial={{ width: 0 }}
                     animate={{ width: hoveredItem === item.id ? "100%" : 0 }}
                     transition={{

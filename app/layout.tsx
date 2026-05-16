@@ -2,6 +2,7 @@ import type React from "react"
 import { Inter, Playfair_Display } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import { TransitionProvider } from "@/components/page-transition/TransitionProvider"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const playfair = Playfair_Display({
@@ -22,10 +23,10 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" suppressHydrationWarning>
-      <body className={`${inter.variable} ${playfair.variable} font-sans`}>
-        <ThemeProvider attribute="class" defaultTheme="dark">
-          {children}
+    <html lang="es" className="dark" suppressHydrationWarning>
+      <body className={`${inter.variable} ${playfair.variable} font-sans bg-background text-foreground`}>
+        <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
+          <TransitionProvider>{children}</TransitionProvider>
         </ThemeProvider>
       </body>
     </html>

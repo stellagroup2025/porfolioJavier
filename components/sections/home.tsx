@@ -101,7 +101,7 @@ export function Home() {
         <motion.div className="mb-3" variants={item}>
           <h1
             className={cn(
-              "font-light tracking-tight leading-tight text-black mb-1.5",
+              "font-light tracking-tight leading-tight text-foreground mb-1.5",
               isMobile ? "text-2xl text-center" : "text-2xl md:text-3xl",
               playfair.className
             )}
@@ -111,7 +111,7 @@ export function Home() {
 
           {/* Línea decorativa */}
           <motion.div
-            className="h-[0.5px] bg-black"
+            className="h-[0.5px] bg-foreground"
             variants={lineAnimation}
             initial="hidden"
             animate="show"
@@ -122,7 +122,7 @@ export function Home() {
         <motion.div className="mb-4" variants={item}>
           <p
             className={cn(
-              "font-light tracking-tight text-black/90",
+              "font-light tracking-tight text-foreground/90",
               isMobile
                 ? "text-sm text-center max-w-full"
                 : "text-base md:text-xl max-w-xl"
@@ -136,7 +136,7 @@ export function Home() {
         <motion.div className="mb-4 sm:mb-6" variants={item}>
           <h2
             className={cn(
-              "font-light leading-relaxed text-black",
+              "font-light leading-relaxed text-foreground",
               isMobile
                 ? "text-sm text-center max-w-full"
                 : "text-sm md:text-base max-w-xl"
@@ -152,7 +152,7 @@ export function Home() {
           <div className="space-y-3">
             <span
               className={cn(
-                "text-[10px] sm:text-xs font-light tracking-[0.2em] uppercase text-black/70",
+                "text-[10px] sm:text-xs font-light tracking-[0.2em] uppercase text-foreground/70",
                 isMobile ? "block text-center" : ""
               )}
             >
@@ -171,7 +171,7 @@ export function Home() {
                 <motion.span
                   key={index}
                   variants={techItem}
-                  className="px-2 py-1 text-[9px] sm:text-[8px] font-light text-black/80 tracking-wide border border-black/10 bg-black/[0.02] backdrop-blur-sm rounded-sm hover:border-black/20 hover:bg-black/[0.05] transition-all duration-300"
+                  className="px-2 py-1 text-[9px] sm:text-[8px] font-light text-foreground/80 tracking-wide border border-foreground/10 bg-foreground/[0.02] backdrop-blur-sm rounded-sm hover:border-foreground/20 hover:bg-foreground/[0.05] transition-all duration-300"
                   whileHover={{
                     scale: 1.05,
                     y: -1,

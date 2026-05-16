@@ -1,0 +1,164 @@
+import * as THREE from "three"
+import { Experience } from "./Experience"
+import { Scroll } from "./Scroll"
+
+class Engine {
+  constructor(canvas, container, options = {}) {
+    if (!(canvas instanceof HTMLCanvasElement)) {
+      throw new Error("Engine requires a valid canvas element")
+    }
+
+    this.canvas = canvas
+    this.container = container || canvas.parentElement || document.body
+    this.onPlaneClick = typeof options.onPlaneClick === "function" ? options.onPlaneClick : null
+    this.experience = new Experience(this.container)
+    this.isInitialized = false
+    this.isRunning = false
+    this.animationFrameRequestId = null
+    this.preloadedTextures = new Map()
+    this.scene = new THREE.Scene()
+
+    this.camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100)
+    this.camera.position.set(0, 0, 6)
+
+    this.scroll = new Scroll(this.camera, this.experience.gallery, this.canvas)
+
+    this.renderer = new THREE.WebGLRenderer({
+      canvas: this.canvas,
+      antialias: true,
+      alpha: true,
+    })
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace
+    this.renderer.autoClear = false
+
+    this.pointerDownPosition = null
+    this.pointerDownTime = 0
+    this.clickMoveThresholdPx = 6
+    this.clickTimeThresholdMs = 400
+
+    this.onResize = () => {
+      this.resize()
+    }
+    this.onPointerDown = (event) => {
+      this.pointerDownPosition = { x: event.clientX, y: event.clientY }
+      this.pointerDownTime = performance.now()
+    }
+    this.onPointerUp = (event) => {
+      if (!this.pointerDownPosition) return
+      const dx = event.clientX - this.pointerDownPosition.x
+      const dy = event.clientY - this.pointerDownPosition.y
+      const distance = Math.hypot(dx, dy)
+      const elapsedMs = performance.now() - this.pointerDownTime
+      this.pointerDownPosition = null
+
+      if (distance > this.clickMoveThresholdPx) return
+      if (elapsedMs > this.clickTimeThresholdMs) return
+
+      const blendData = this.experience.gallery.getPlaneBlendData(this.camera.position.z)
+      if (!blendData) return
+      const focusedPlaneIndex =
+        blendData.blend >= 0.5 ? blendData.nextPlaneIndex : blendData.currentPlaneIndex
+      const planeId = this.experience.gallery.getPlaneIdByIndex(focusedPlaneIndex)
+      if (!planeId) return
+
+      this.onPlaneClick?.(planeId, focusedPlaneIndex)
+    }
+
+    this.animate = this.update.bind(this)
+  }
+
+  async init() {
+    if (this.isInitialized) return
+
+    await this.experience.init(this.scene, this.camera)
+    this.scroll.init()
+
+    this.resize()
+    window.addEventListener("resize", this.onResize)
+    this.canvas.addEventListener("pointerdown", this.onPointerDown)
+    this.canvas.addEventListener("pointerup", this.onPointerUp)
+    this.scroll.bindEvents()
+
+    this.isInitialized = true
+    this.start()
+  }
+
+  start() {
+    if (!this.isInitialized || this.isRunning) return
+
+    this.isRunning = true
+    this.update()
+  }
+
+  resize() {
+    const width = this.canvas.clientWidth || window.innerWidth || 1
+    const height = this.canvas.clientHeight || window.innerHeight || 1
+    if (width <= 0 || height <= 0) return
+
+    this.camera.aspect = width / height
+    this.camera.updateProjectionMatrix()
+    this.renderer.setSize(width, height, false)
+    this.experience.gallery.updatePlaneScale()
+    this.experience.gallery.layoutPlanes()
+    this.experience.label.resize(width, height)
+  }
+
+  async preloadTextures() {
+    const textureSources = this.experience.gallery.getTextureSources()
+    if (!textureSources.length) return new Map()
+
+    const textureLoader = new THREE.TextureLoader()
+    const loadedTextures = new Map()
+
+    await Promise.all(
+      textureSources.map(async (textureSource) => {
+        try {
+          const texture = await textureLoader.loadAsync(textureSource)
+          texture.colorSpace = THREE.SRGBColorSpace
+          loadedTextures.set(textureSource, texture)
+        } catch (error) {
+          console.warn(`Texture failed to load: ${textureSource}`, error)
+        }
+      })
+    )
+
+    return loadedTextures
+  }
+
+  update() {
+    if (!this.isRunning) return
+
+    this.animationFrameRequestId = requestAnimationFrame(this.animate)
+
+    const time = performance.now()
+
+    this.scroll.update()
+    this.experience.update(time, this.camera, this.scroll)
+
+    this.renderer.clear(true, true, true)
+    this.experience.background.render(this.renderer)
+    this.renderer.clearDepth()
+    this.renderer.render(this.scene, this.camera)
+    this.experience.label.render()
+  }
+
+  dispose() {
+    this.isRunning = false
+
+    if (this.animationFrameRequestId !== null) {
+      cancelAnimationFrame(this.animationFrameRequestId)
+      this.animationFrameRequestId = null
+    }
+
+    window.removeEventListener("resize", this.onResize)
+    this.canvas.removeEventListener("pointerdown", this.onPointerDown)
+    this.canvas.removeEventListener("pointerup", this.onPointerUp)
+    this.scroll.dispose()
+
+    this.experience.dispose?.()
+    this.renderer.dispose()
+  }
+}
+
+export { Engine }

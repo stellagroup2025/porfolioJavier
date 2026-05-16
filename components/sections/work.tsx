@@ -3,10 +3,12 @@
 import { motion } from "framer-motion"
 import { useState } from "react"
 import { ExternalLink, Github } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { PageTransition } from "@/components/page-transition"
 import { WorkBackground } from "@/components/work-background"
+import { useTransition } from "@/components/page-transition/TransitionProvider"
 import { cn } from "@/lib/utils"
 import { Playfair_Display } from "next/font/google"
 
@@ -19,6 +21,7 @@ interface WorkProps {
 
 export function Work({ activeProject, setActiveProject }: WorkProps) {
   const isMobile = useIsMobile()
+  const { withTransition } = useTransition()
 
   const projects = [
     {
@@ -33,11 +36,12 @@ export function Work({ activeProject, setActiveProject }: WorkProps) {
       featured: true,
     },
     {
-      id: "dashboard",
-      title: "Dashboard Analytics",
-      description: "Panel de control para visualización de datos y métricas empresariales en tiempo real.",
+      id: "animaciones",
+      title: "Animaciones",
+      description: "Galería de demos de animaciones interactivas creadas con Framer Motion y React.",
       image: "/data-analytics-dashboard.png",
-      tags: ["React", "D3.js", "Firebase", "Material UI", "TypeScript"],
+      tags: ["React", "Framer Motion", "Next.js", "TypeScript", "Tailwind CSS"],
+      href: "/animaciones",
       link: "#",
       github: "#",
       featured: true,
@@ -83,14 +87,14 @@ export function Work({ activeProject, setActiveProject }: WorkProps) {
         >
           <h1
             className={cn(
-              "font-bold font-playfair mb-6 text-black tracking-tight",
+              "font-bold font-playfair mb-6 text-foreground tracking-tight",
               isMobile ? "text-3xl text-center" : "text-4xl sm:text-5xl md:text-6xl text-left",
             )}
           >
             Proyectos
           </h1>
 
-          <p className={cn("text-black/70 mb-4", isMobile ? "text-center text-sm" : "text-left")}>
+          <p className={cn("text-foreground/70 mb-4", isMobile ? "text-center text-sm" : "text-left")}>
             Una selección de mis trabajos más recientes y destacados.
           </p>
         </motion.div>
@@ -119,13 +123,13 @@ export function Work({ activeProject, setActiveProject }: WorkProps) {
           >
             <h1
               className={cn(
-                "text-4xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight text-black",
+                "text-4xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight text-foreground",
                 playfair.className,
               )}
             >
               {project.title}
             </h1>
-            <p className="text-lg md:text-xl text-black/70 max-w-3xl mx-auto leading-relaxed font-light">
+            <p className="text-lg md:text-xl text-foreground/70 max-w-3xl mx-auto leading-relaxed font-light">
               {project.description}
             </p>
           </motion.div>
@@ -136,13 +140,13 @@ export function Work({ activeProject, setActiveProject }: WorkProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.4 }}
           >
-            <Button variant="default" className="gap-2 rounded-full bg-black text-white hover:bg-black/90 px-8 py-3">
+            <Button variant="default" className="gap-2 rounded-full bg-foreground text-white hover:bg-foreground/90 px-8 py-3">
               <ExternalLink size={16} />
               Ver proyecto en vivo
             </Button>
             <Button
               variant="outline"
-              className="gap-2 rounded-full border-black/20 text-black hover:bg-black/10 px-8 py-3"
+              className="gap-2 rounded-full border-foreground/20 text-foreground hover:bg-foreground/10 px-8 py-3"
             >
               <Github size={16} />
               Ver código fuente
@@ -156,12 +160,12 @@ export function Work({ activeProject, setActiveProject }: WorkProps) {
             transition={{ duration: 0.6, delay: 1.6 }}
           >
             <button
-              onClick={() => setActiveProject(null)}
-              className="group flex items-center gap-3 text-black/60 hover:text-black transition-colors"
+              onClick={() => withTransition(() => setActiveProject(null))}
+              className="group flex items-center gap-3 text-foreground/60 hover:text-foreground transition-colors"
             >
-              <div className="w-8 h-px bg-black/20 group-hover:bg-black/60 transition-colors" />
+              <div className="w-8 h-px bg-foreground/20 group-hover:bg-foreground/60 transition-colors" />
               <span className="text-sm uppercase tracking-widest">Volver a proyectos</span>
-              <div className="w-8 h-px bg-black/20 group-hover:bg-black/60 transition-colors" />
+              <div className="w-8 h-px bg-foreground/20 group-hover:bg-foreground/60 transition-colors" />
             </button>
           </motion.div>
         </div>
@@ -178,6 +182,20 @@ interface WorkNavigationProps {
 
 function WorkNavigation({ projects, setActiveProject, isMobile }: WorkNavigationProps) {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
+  const router = useRouter()
+  const { withTransition } = useTransition()
+
+  const handleProjectActivate = (project: { id: string; href?: string }) => {
+    if (project.href) {
+      withTransition(() => {
+        router.push(project.href as string)
+      })
+    } else {
+      withTransition(() => {
+        setActiveProject(project.id)
+      })
+    }
+  }
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -203,35 +221,43 @@ function WorkNavigation({ projects, setActiveProject, isMobile }: WorkNavigation
       animate="visible"
     >
       <div className="relative w-full h-full flex items-center justify-center">
-        {projects.map((project, index) => (
-          <motion.div
-            key={project.id}
-            className="absolute"
-            variants={itemVariants}
-            style={{
-              right: isMobile ? "5%" : "10%",
-              top: isMobile ? `${20 + index * 12}%` : `${30 + index * 15}%`, // Reduced top spacing for mobile
-            }}
-          >
-            <motion.button
-              onClick={() => setActiveProject(project.id)}
-              onMouseEnter={() => setHoveredItem(project.id)}
-              onMouseLeave={() => setHoveredItem(null)}
-              className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-playfair tracking-tighter transition-colors pointer-events-auto relative ${
-                hoveredItem === project.id ? "text-black" : "text-black/70"
-              }`}
-              whileHover={{ x: 20 }}
+        {projects.map((project, index) => {
+          const itemClassName = `text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-playfair tracking-tighter transition-colors pointer-events-auto relative ${
+            hoveredItem === project.id ? "text-foreground" : "text-foreground/70"
+          }`
+
+          const underline = (
+            <motion.div
+              className="absolute -bottom-2 left-0 h-1 bg-foreground"
+              initial={{ width: 0 }}
+              animate={{ width: hoveredItem === project.id ? "100%" : 0 }}
+              transition={{ duration: 0.3 }}
+            />
+          )
+
+          return (
+            <motion.div
+              key={project.id}
+              className="absolute"
+              variants={itemVariants}
+              style={{
+                right: isMobile ? "5%" : "10%",
+                top: isMobile ? `${20 + index * 12}%` : `${30 + index * 15}%`,
+              }}
             >
-              {project.title}
-              <motion.div
-                className="absolute -bottom-2 left-0 h-1 bg-black"
-                initial={{ width: 0 }}
-                animate={{ width: hoveredItem === project.id ? "100%" : 0 }}
-                transition={{ duration: 0.3 }}
-              />
-            </motion.button>
-          </motion.div>
-        ))}
+              <motion.button
+                onClick={() => handleProjectActivate(project)}
+                onMouseEnter={() => setHoveredItem(project.id)}
+                onMouseLeave={() => setHoveredItem(null)}
+                className={itemClassName}
+                whileHover={{ x: 20 }}
+              >
+                {project.title}
+                {underline}
+              </motion.button>
+            </motion.div>
+          )
+        })}
       </div>
     </motion.div>
   )

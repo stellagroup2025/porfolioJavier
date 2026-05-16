@@ -74,7 +74,7 @@ function CosmicShape({
             "absolute inset-0 rounded-full",
             "bg-gradient-to-r to-transparent",
             gradient,
-            "backdrop-blur-[2px] border-2 border-black/[0.08]",
+            "backdrop-blur-[2px] border-2 border-foreground/[0.08]",
             "shadow-[0_8px_32px_0_rgba(0,0,0,0.05)]",
             "after:absolute after:inset-0 after:rounded-full",
             "after:bg-[radial-gradient(circle_at_50%_50%,rgba(0,0,0,0.1),transparent_70%)]"
@@ -85,6 +85,10 @@ function CosmicShape({
   );
 }
 
+// Ref compartida que el GeometricBackground actualiza con la posición suavizada del cursor.
+// Las shapes la consumen para calcular su iluminación en cada frame.
+const mousePositionRef = { current: { x: 0.5, y: 0.5, hasMoved: false } };
+
 // Componente para formas geométricas elegantes
 function ElegantShape({
   className,
@@ -92,7 +96,7 @@ function ElegantShape({
   width = 400,
   height = 100,
   rotate = 0,
-  gradient = "from-black/[0.08]",
+  gradient = "from-foreground/[0.08]",
   shape = "rectangle",
 }: {
   className?: string;
@@ -103,6 +107,37 @@ function ElegantShape({
   gradient?: string;
   shape?: "rectangle" | "triangle";
 }) {
+  const surfaceRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let rafId = 0;
+    const tick = () => {
+      const el = surfaceRef.current;
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const mouseX = mousePositionRef.current.x * window.innerWidth;
+        const mouseY = mousePositionRef.current.y * window.innerHeight;
+        const dist = Math.hypot(mouseX - cx, mouseY - cy);
+        const reach = 460;
+        const proximity = Math.max(0, 1 - dist / reach); // 0..1
+        const eased = proximity * proximity; // squared for sharper falloff
+
+        // Highlight position relative to the shape (where the light "hits")
+        const relX = ((mouseX - rect.left) / Math.max(rect.width, 1)) * 100;
+        const relY = ((mouseY - rect.top) / Math.max(rect.height, 1)) * 100;
+
+        el.style.setProperty("--light-x", `${relX}%`);
+        el.style.setProperty("--light-y", `${relY}%`);
+        el.style.setProperty("--light-strength", eased.toFixed(3));
+      }
+      rafId = requestAnimationFrame(tick);
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, []);
+
   return (
     <motion.div
       initial={{
@@ -139,24 +174,30 @@ function ElegantShape({
         className="relative"
       >
         <div
+          ref={surfaceRef}
           className={cn(
             "absolute inset-0",
             shape === "triangle" ? "triangle-shape" : "rounded-sm",
             "bg-gradient-to-r to-transparent",
             gradient,
-            "backdrop-blur-[2px] border border-black/[0.05]",
-            "shadow-[0_8px_32px_0_rgba(0,0,0,0.05)]",
-            "after:absolute after:inset-0",
-            shape === "triangle" ? "after:triangle-shape" : "after:rounded-sm",
-            "after:bg-[radial-gradient(circle_at_50%_50%,rgba(0,0,0,0.05),transparent_70%)]"
+            "backdrop-blur-[2px] border border-foreground/[0.05]"
           )}
-          style={
-            shape === "triangle"
-              ? {
-                  clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",
-                }
-              : {}
-          }
+          style={{
+            clipPath:
+              shape === "triangle"
+                ? "polygon(50% 0%, 0% 100%, 100% 100%)"
+                : undefined,
+            // Glow externo que cambia con la proximidad
+            boxShadow:
+              "0 0 calc(60px * var(--light-strength, 0)) calc(8px * var(--light-strength, 0)) rgba(255, 245, 220, calc(0.55 * var(--light-strength, 0))), 0 8px 32px 0 rgba(0,0,0,0.05)",
+            // Brillo global proporcional al cursor
+            filter:
+              "brightness(calc(1 + 1.4 * var(--light-strength, 0))) saturate(calc(1 + 0.3 * var(--light-strength, 0)))",
+            // Highlight radial dentro del shape, en la zona donde "rebota" la luz
+            backgroundImage:
+              "radial-gradient(circle at var(--light-x, 50%) var(--light-y, 50%), rgba(255, 248, 230, calc(0.85 * var(--light-strength, 0))) 0%, rgba(255, 248, 230, calc(0.25 * var(--light-strength, 0))) 30%, transparent 70%)",
+            transition: "filter 120ms linear",
+          }}
         />
       </motion.div>
     </motion.div>
@@ -191,7 +232,7 @@ function MinimalParticle({
         repeat: Number.POSITIVE_INFINITY,
         ease: "easeInOut",
       }}
-      className={cn("absolute rounded-full bg-black/10", className)}
+      className={cn("absolute rounded-full bg-foreground/10", className)}
       style={{
         width: size,
         height: size,
@@ -433,15 +474,49 @@ function AnimatedCanvas() {
 
 // Fondo geométrico con muchas más figuras
 export function GeometricBackground() {
+  const rootRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    let rafId = 0;
+    let targetX = 0.5;
+    let targetY = 0.5;
+    let currentX = 0.5;
+    let currentY = 0.5;
+
+    const handlePointerMove = (event: PointerEvent) => {
+      targetX = event.clientX / window.innerWidth;
+      targetY = event.clientY / window.innerHeight;
+      mousePositionRef.current.hasMoved = true;
+    };
+
+    const tick = () => {
+      const ease = 0.15;
+      currentX += (targetX - currentX) * ease;
+      currentY += (targetY - currentY) * ease;
+      mousePositionRef.current.x = currentX;
+      mousePositionRef.current.y = currentY;
+      rafId = requestAnimationFrame(tick);
+    };
+
+    window.addEventListener("pointermove", handlePointerMove, { passive: true });
+    rafId = requestAnimationFrame(tick);
+
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      cancelAnimationFrame(rafId);
+    };
+  }, []);
+
   return (
     <motion.div
+      ref={rootRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 1.5, ease: "easeInOut" }}
       className="absolute inset-0 -z-10"
     >
-      <div className="absolute inset-0 bg-[#ffffff]"></div>
+      <div className="absolute inset-0 bg-background"></div>
       <div className="absolute inset-0 bg-gradient-to-br from-[#e1dbd6]/[0.15] via-transparent to-[#d1d1d1]/[0.15] blur-3xl" />
 
       {/* Canvas animado con muchas figuras */}
@@ -537,7 +612,7 @@ export function GeometricBackground() {
         />
       </div>
 
-      <div className="absolute inset-0 bg-gradient-to-t from-[#ffffff] via-transparent to-[#ffffff]/80 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/80 pointer-events-none" />
     </motion.div>
   );
 }
@@ -619,7 +694,7 @@ export function MinimalBackground() {
       className="absolute inset-0 -z-10"
     >
       {/* Base background */}
-      <div className="absolute inset-0 z-0 bg-[#ffffff]"></div>
+      <div className="absolute inset-0 z-0 bg-background"></div>
 
       {/* Subtle particles */}
       <div className="absolute inset-0 overflow-hidden">
@@ -645,8 +720,8 @@ export function MinimalBackground() {
       <div className="absolute bottom-[10%] left-[10%] w-[200px] h-[200px] rounded-full bg-[#e1dbd6]/[0.2] blur-3xl" />
 
       {/* Vignette effect */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#ffffff] via-transparent to-[#ffffff]/50 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#ffffff]/50 via-transparent to-[#ffffff]/50 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/50 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background/50 via-transparent to-background/50 pointer-events-none" />
     </motion.div>
   );
 }
@@ -751,8 +826,8 @@ export default function MultiBackground() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 1 }}
         >
-          <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/[0.05] border border-black/[0.1] backdrop-blur-md hover:bg-black/[0.08] transition-all duration-300">
-            <ChevronLeft className="w-4 h-4 text-black/70" />
+          <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-foreground/[0.05] border border-foreground/[0.1] backdrop-blur-md hover:bg-foreground/[0.08] transition-all duration-300">
+            <ChevronLeft className="w-4 h-4 text-foreground/70" />
           </div>
         </motion.button>
 
@@ -765,8 +840,8 @@ export default function MultiBackground() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 1.1 }}
         >
-          <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/[0.05] border border-black/[0.1] backdrop-blur-md hover:bg-black/[0.08] transition-all duration-300">
-            <ChevronRight className="w-4 h-4 text-black/70" />
+          <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-foreground/[0.05] border border-foreground/[0.1] backdrop-blur-md hover:bg-foreground/[0.08] transition-all duration-300">
+            <ChevronRight className="w-4 h-4 text-foreground/70" />
           </div>
         </motion.button>
       </div>
@@ -777,14 +852,14 @@ export default function MultiBackground() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.2 }}
       >
-        <div className="flex items-center gap-4 px-4 py-2 rounded-full bg-black/[0.03] border border-black/[0.08] backdrop-blur-md">
+        <div className="flex items-center gap-4 px-4 py-2 rounded-full bg-foreground/[0.03] border border-foreground/[0.08] backdrop-blur-md">
           <div className="flex gap-2">
             <motion.div
               className={cn(
                 "w-2 h-2 rounded-full transition-all duration-300",
                 currentBackground === "cosmic"
                   ? getBackgroundColor("cosmic")
-                  : "bg-black/30"
+                  : "bg-foreground/30"
               )}
               animate={{
                 scale: currentBackground === "cosmic" ? 1.2 : 1,
@@ -795,7 +870,7 @@ export default function MultiBackground() {
                 "w-2 h-2 rounded-full transition-all duration-300",
                 currentBackground === "geometric"
                   ? getBackgroundColor("geometric")
-                  : "bg-black/30"
+                  : "bg-foreground/30"
               )}
               animate={{
                 scale: currentBackground === "geometric" ? 1.2 : 1,
@@ -806,7 +881,7 @@ export default function MultiBackground() {
                 "w-2 h-2 rounded-full transition-all duration-300",
                 currentBackground === "minimal"
                   ? getBackgroundColor("minimal")
-                  : "bg-black/30"
+                  : "bg-foreground/30"
               )}
               animate={{
                 scale: currentBackground === "minimal" ? 1.2 : 1,
@@ -814,10 +889,10 @@ export default function MultiBackground() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-black/50 capitalize">
+            <span className="text-xs text-foreground/50 capitalize">
               {currentBackground}
             </span>
-            <div className="text-black/50">
+            <div className="text-foreground/50">
               {getBackgroundIcon(currentBackground)}
             </div>
           </div>
@@ -832,12 +907,12 @@ export default function MultiBackground() {
             initial="hidden"
             animate="visible"
             key={`badge-${currentBackground}`}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/[0.03] border border-black/[0.08] mb-8 md:mb-12"
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-foreground/[0.03] border border-foreground/[0.08] mb-8 md:mb-12"
           >
-            <div className="text-black/60 mr-2">
+            <div className="text-foreground/60 mr-2">
               {getBackgroundIcon(currentBackground)}
             </div>
-            <span className="text-sm text-black/60 tracking-wide capitalize">
+            <span className="text-sm text-foreground/60 tracking-wide capitalize">
               {currentBackground} Experience
             </span>
           </motion.div>
@@ -850,7 +925,7 @@ export default function MultiBackground() {
             key={`title-${currentBackground}`}
           >
             <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold mb-6 md:mb-8 tracking-tight">
-              <span className="bg-clip-text text-transparent bg-gradient-to-b from-black to-black/80">
+              <span className="bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/80">
                 {getBackgroundTitle(currentBackground).main}
               </span>
               <br />
@@ -877,7 +952,7 @@ export default function MultiBackground() {
             animate="visible"
             key={`desc-${currentBackground}`}
           >
-            <p className="text-base sm:text-lg md:text-xl text-black/60 mb-8 leading-relaxed font-light tracking-wide max-w-xl mx-auto px-4">
+            <p className="text-base sm:text-lg md:text-xl text-foreground/60 mb-8 leading-relaxed font-light tracking-wide max-w-xl mx-auto px-4">
               {getBackgroundDescription(currentBackground)}
             </p>
           </motion.div>

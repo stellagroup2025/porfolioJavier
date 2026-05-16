@@ -159,7 +159,7 @@ export function Contact() {
                   },
                 },
               }}
-              className="absolute w-[2px] h-[2px] rounded-full bg-black/20"
+              className="absolute w-[2px] h-[2px] rounded-full bg-foreground/20"
               style={{
                 left: `${20 + i * 10}%`,
                 top: `${30 + i * 8}%`,
@@ -179,7 +179,7 @@ export function Contact() {
       >
         <motion.h1
           className={cn(
-            "text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-light tracking-tight overflow-hidden text-black",
+            "text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-light tracking-tight overflow-hidden text-foreground",
             playfair.className
           )}
           variants={containerVariants}
@@ -204,7 +204,7 @@ export function Contact() {
         {/* Cita en cursiva */}
         <motion.p
           className={cn(
-            "text-sm sm:text-base md:text-lg font-light italic text-black/70 mt-4 sm:mt-6 md:mt-8 max-w-md",
+            "text-sm sm:text-base md:text-lg font-light italic text-foreground/70 mt-4 sm:mt-6 md:mt-8 max-w-md",
             cormorant.className
           )}
           variants={quoteVariants}
@@ -227,7 +227,7 @@ export function Contact() {
           <div>
             <p
               className={cn(
-                "text-black/70 text-sm font-light tracking-wide mb-0",
+                "text-foreground/70 text-sm font-light tracking-wide mb-0",
                 cormorant.className
               )}
             >
@@ -236,7 +236,7 @@ export function Contact() {
             <a
               href="mailto:hello@javierreyes.com"
               className={cn(
-                "text-xl sm:text-2xl font-light text-black hover:text-black/80 transition-colors tracking-wide",
+                "text-xl sm:text-2xl font-light text-foreground hover:text-foreground/80 transition-colors tracking-wide",
                 cormorant.className
               )}
             >
@@ -247,7 +247,7 @@ export function Contact() {
           <div>
             <p
               className={cn(
-                "text-black/70 text-sm font-light tracking-wide mb-0",
+                "text-foreground/70 text-sm font-light tracking-wide mb-0",
                 cormorant.className
               )}
             >
@@ -261,7 +261,7 @@ export function Contact() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className={cn(
-                    "text-black hover:text-black/70 transition-colors text-lg font-light tracking-wide",
+                    "text-foreground hover:text-foreground/70 transition-colors text-lg font-light tracking-wide",
                     cormorant.className
                   )}
                 >

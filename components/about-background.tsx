@@ -77,7 +77,7 @@ function AboutShape({
               : "rounded-sm",
             "bg-gradient-to-br to-transparent",
             gradient,
-            "backdrop-blur-[1px] border border-black/[0.08]",
+            "backdrop-blur-[1px] border border-foreground/[0.08]",
             "shadow-[0_8px_32px_0_rgba(0,0,0,0.05)]"
           )}
           style={
@@ -267,7 +267,7 @@ function AnimatedGrid() {
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(canvas.width, y);
-        ctx.strokeStyle = `rgba(0, 0, 0, ${opacity})`;
+        ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
         ctx.lineWidth = lineWidth;
         ctx.stroke();
       }
@@ -278,7 +278,7 @@ function AnimatedGrid() {
         ctx.beginPath();
         ctx.moveTo(x, 0);
         ctx.lineTo(x, canvas.height);
-        ctx.strokeStyle = `rgba(0, 0, 0, ${opacity})`;
+        ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
         ctx.lineWidth = lineWidth;
         ctx.stroke();
       }
@@ -299,7 +299,7 @@ function AnimatedGrid() {
 
           ctx.beginPath();
           ctx.arc(x, y, size, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
+          ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
           ctx.fill();
         }
       }
@@ -529,7 +529,7 @@ export function AboutBackground() {
           width={200}
           height={200}
           rotate={-40}
-          gradient="from-[#f9f6f2]/[0.25]"
+          gradient="from-background/[0.25]"
           shape="triangle"
           className="right-[50%] bottom-[5%]"
         />
@@ -565,7 +565,7 @@ export function AboutBackground() {
           width={150}
           height={100}
           rotate={-55}
-          gradient="from-[#f9f6f2]/[0.2]"
+          gradient="from-background/[0.2]"
           shape="oval"
           className="right-[10%] bottom-[60%]"
         />
@@ -578,9 +578,9 @@ export function AboutBackground() {
       <div className="absolute bottom-[50%] right-[40%] w-[180px] h-[180px] rounded-full  aaaa/[0.1] blur-3xl" />
 
       {/* Gradientes sutiles para mejorar la legibilidad */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#f9f6f2]/70 via-transparent to-[#f9f6f2]/50 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#f9f6f2]/30 via-transparent to-[#f9f6f2]/30 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-br from-[#f9f6f2]/20 via-transparent to-[#f9f6f2]/20 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-background/50 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background/30 via-transparent to-background/30 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-background/20 via-transparent to-background/20 pointer-events-none" />
     </motion.div>
   );
 }

@@ -65,10 +65,10 @@ export function Projects() {
         animate="show"
       >
         <motion.div className="text-center mb-16" variants={item}>
-          <h2 className="text-3xl md:text-5xl font-bold mb-4 font-playfair text-black">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 font-playfair text-foreground">
             Proyectos
           </h2>
-          <p className="text-black/70 max-w-2xl mx-auto">
+          <p className="text-foreground/70 max-w-2xl mx-auto">
             Una selección de mis trabajos más recientes y destacados.
           </p>
         </motion.div>
@@ -101,16 +101,16 @@ export function Projects() {
                   </div>
                 </div>
                 <CardContent className="px-0">
-                  <h3 className="text-xl font-semibold mb-2 text-black">
+                  <h3 className="text-xl font-semibold mb-2 text-foreground">
                     {project.title}
                   </h3>
-                  <p className="text-black/70 mb-4">{project.description}</p>
+                  <p className="text-foreground/70 mb-4">{project.description}</p>
                   <div className="flex flex-wrap gap-2">
                     {project.tags.map((tag, tagIndex) => (
                       <Badge
                         key={tagIndex}
                         variant="secondary"
-                        className="bg-[#e1dbd6] text-black"
+                        className="bg-[#e1dbd6] text-foreground"
                       >
                         {tag}
                       </Badge>

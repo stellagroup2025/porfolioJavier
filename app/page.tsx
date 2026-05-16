@@ -14,6 +14,7 @@ import { LanguageToggle } from "@/components/language-toggle";
 import { Logo } from "@/components/logo";
 import { PageTransition } from "@/components/page-transition";
 import { SectionLink } from "@/components/section-link";
+import { useTransition } from "@/components/page-transition/TransitionProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function Portfolio() {
@@ -21,6 +22,7 @@ export default function Portfolio() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [activeProject, setActiveProject] = useState<string | null>(null);
   const isMobile = useIsMobile();
+  const { withTransition } = useTransition();
 
   const handleSectionChange = (section: string) => {
     if (activeSection !== section && !isTransitioning) {
@@ -47,6 +49,17 @@ export default function Portfolio() {
     return () => clearTimeout(timer);
   }, [activeSection]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const requestedSection = params.get("section");
+    const validSections = ["home", "work", "services", "about", "contact"];
+    if (requestedSection && validSections.includes(requestedSection)) {
+      setActiveSection(requestedSection);
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, "", cleanUrl);
+    }
+  }, []);
+
   const sections = {
     home: <Home />,
     work: (
@@ -71,11 +84,11 @@ export default function Portfolio() {
   // Determinar a qué sección debemos navegar al hacer clic en el enlace
   const sectionToNavigate =
     activeSection === "work" && activeProject
-      ? () => handleProjectChange(null) // Si estamos en un proyecto, volver a la lista de proyectos
+      ? () => withTransition(() => handleProjectChange(null)) // Si estamos en un proyecto, volver a la lista con transición
       : () => handleSectionChange("home"); // En cualquier otro caso, volver a home
 
   return (
-    <div className="min-h-screen overflow-hidden text-black  aaaa">
+    <div className="min-h-screen overflow-hidden text-foreground">
       <header className="fixed top-0 left-0 w-full z-50 px-4 sm:px-6 py-4">
         <div className="flex items-center justify-between">
           <motion.div

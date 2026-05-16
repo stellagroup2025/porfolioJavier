@@ -38,7 +38,7 @@ export function Services() {
 
   const services = [
     {
-      icon: <Code className="h-10 w-10 text-black" />,
+      icon: <Code className="h-10 w-10 text-foreground" />,
       title: "Desarrollo Web",
       description:
         "Creación de aplicaciones web modernas y responsivas utilizando las últimas tecnologías como React, Next.js y Node.js.",
@@ -52,7 +52,7 @@ export function Services() {
       highlight: true,
     },
     {
-      icon: <Smartphone className="h-10 w-10 text-black" />,
+      icon: <Smartphone className="h-10 w-10 text-foreground" />,
       title: "Desarrollo Móvil",
       description:
         "Desarrollo de aplicaciones móviles nativas y multiplataforma para iOS y Android con React Native y Flutter.",
@@ -66,7 +66,7 @@ export function Services() {
       highlight: false,
     },
     {
-      icon: <Database className="h-10 w-10 text-black" />,
+      icon: <Database className="h-10 w-10 text-foreground" />,
       title: "Bases de Datos",
       description:
         "Diseño e implementación de bases de datos SQL y NoSQL optimizadas para rendimiento y escalabilidad.",
@@ -81,7 +81,7 @@ export function Services() {
       highlight: true,
     },
     {
-      icon: <Globe className="h-10 w-10 text-black" />,
+      icon: <Globe className="h-10 w-10 text-foreground" />,
       title: "Consultoría Técnica",
       description:
         "Asesoramiento estratégico para optimizar tu presencia digital, arquitectura de software y procesos tecnológicos.",
@@ -95,7 +95,7 @@ export function Services() {
       highlight: false,
     },
     {
-      icon: <LineChart className="h-10 w-10 text-black" />,
+      icon: <LineChart className="h-10 w-10 text-foreground" />,
       title: "Analítica Web",
       description:
         "Implementación de soluciones de analítica web para medir y optimizar el rendimiento de tu sitio o aplicación.",
@@ -109,7 +109,7 @@ export function Services() {
       highlight: false,
     },
     {
-      icon: <Search className="h-10 w-10 text-black" />,
+      icon: <Search className="h-10 w-10 text-foreground" />,
       title: "SEO Técnico",
       description:
         "Optimización técnica de tu sitio web para mejorar su posicionamiento en los motores de búsqueda.",
@@ -129,7 +129,7 @@ export function Services() {
       title: "Desarrollo Full Stack",
       description:
         "Soluciones completas desde el frontend hasta el backend, con arquitecturas modernas y escalables.",
-      icon: <Server className="h-16 w-16 text-black" />,
+      icon: <Server className="h-16 w-16 text-foreground" />,
       features: [
         "Arquitectura de microservicios",
         "APIs RESTful y GraphQL",
@@ -142,7 +142,7 @@ export function Services() {
       title: "Diseño UI/UX",
       description:
         "Creación de interfaces intuitivas y experiencias de usuario excepcionales que convierten visitantes en clientes.",
-      icon: <Layout className="h-16 w-16 text-black" />,
+      icon: <Layout className="h-16 w-16 text-foreground" />,
       features: [
         "Wireframing y prototipos",
         "Diseño responsive",
@@ -155,7 +155,7 @@ export function Services() {
       title: "Optimización de Rendimiento",
       description:
         "Mejora de la velocidad y eficiencia de aplicaciones web existentes para una experiencia de usuario óptima.",
-      icon: <Zap className="h-16 w-16 text-black" />,
+      icon: <Zap className="h-16 w-16 text-foreground" />,
       features: [
         "Análisis de Core Web Vitals",
         "Optimización de carga",
@@ -207,10 +207,10 @@ export function Services() {
         animate="show"
       >
         <motion.div className="mb-16" variants={item}>
-          <h2 className="text-3xl md:text-5xl font-bold mb-4 font-playfair text-black">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 font-playfair text-foreground">
             Servicios
           </h2>
-          <p className="text-black/70">
+          <p className="text-foreground/70">
             Ofrezco soluciones digitales completas adaptadas a las necesidades
             específicas de cada proyecto, combinando tecnología de vanguardia
             con estrategias efectivas.
@@ -218,7 +218,7 @@ export function Services() {
         </motion.div>
 
         <motion.div className="mb-24" variants={item}>
-          <h3 className="text-2xl font-bold mb-8 font-playfair text-black">
+          <h3 className="text-2xl font-bold mb-8 font-playfair text-foreground">
             Servicios Destacados
           </h3>
           <div
@@ -236,13 +236,13 @@ export function Services() {
                 // Agregamos layout para evitar re-renders problemáticos
                 layout={false}
               >
-                <Card className="h-full border border-black/10  aaaa/80 backdrop-blur-sm hover: aaaa transition-all duration-300 hover:shadow-lg hover:shadow-black/5 hover:-translate-y-1 text-black">
+                <Card className="h-full border border-foreground/10  aaaa/80 backdrop-blur-sm hover: aaaa transition-all duration-300 hover:shadow-lg hover:shadow-black/5 hover:-translate-y-1 text-foreground">
                   <CardHeader className="pb-4">
-                    <div className="mb-4 p-3 bg-black/5 rounded-lg w-fit">
-                      <div className="text-black">{service.icon}</div>
+                    <div className="mb-4 p-3 bg-foreground/5 rounded-lg w-fit">
+                      <div className="text-foreground">{service.icon}</div>
                     </div>
                     <CardTitle className="text-xl">{service.title}</CardTitle>
-                    <CardDescription className="text-base text-black/70">
+                    <CardDescription className="text-base text-foreground/70">
                       {service.description}
                     </CardDescription>
                   </CardHeader>
@@ -250,8 +250,8 @@ export function Services() {
                     <ul className="space-y-2">
                       {service.features.map((feature, i) => (
                         <li key={i} className="flex items-start gap-2">
-                          <CheckCircle className="h-5 w-5 text-black shrink-0 mt-0.5" />
-                          <span className="text-sm text-black/80">
+                          <CheckCircle className="h-5 w-5 text-foreground shrink-0 mt-0.5" />
+                          <span className="text-sm text-foreground/80">
                             {feature}
                           </span>
                         </li>
@@ -259,7 +259,7 @@ export function Services() {
                     </ul>
                     <Button
                       variant="link"
-                      className="mt-4 p-0 h-auto text-black"
+                      className="mt-4 p-0 h-auto text-foreground"
                     >
                       Más información <ArrowRight className="ml-1 h-4 w-4" />
                     </Button>
@@ -271,7 +271,7 @@ export function Services() {
         </motion.div>
 
         <motion.div variants={item}>
-          <h3 className="text-2xl font-bold mb-8 font-playfair text-black">
+          <h3 className="text-2xl font-bold mb-8 font-playfair text-foreground">
             Todos los Servicios
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -285,20 +285,20 @@ export function Services() {
                 layout={false}
               >
                 <Card
-                  className={`h-full border transition-all duration-300 text-black ${
+                  className={`h-full border transition-all duration-300 text-foreground ${
                     service.highlight
-                      ? "border-black/20 bg-[#e1dbd6]/30"
-                      : "border-black/10  aaaa/70 backdrop-blur-sm"
+                      ? "border-foreground/20 bg-[#e1dbd6]/30"
+                      : "border-foreground/10  aaaa/70 backdrop-blur-sm"
                   } ${activeService === index ? "shadow-md" : ""}`}
                 >
                   <CardHeader>
-                    <div className="mb-4 text-black">{service.icon}</div>
+                    <div className="mb-4 text-foreground">{service.icon}</div>
                     <CardTitle className="text-xl flex items-center gap-2">
                       {service.title}
                       {service.highlight && (
                         <Badge
                           variant="default"
-                          className="ml-2 bg-black/10 text-black"
+                          className="ml-2 bg-foreground/10 text-foreground"
                         >
                           Popular
                         </Badge>
@@ -306,7 +306,7 @@ export function Services() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <CardDescription className="text-base text-black/70 mb-4">
+                    <CardDescription className="text-base text-foreground/70 mb-4">
                       {service.description}
                     </CardDescription>
                     <div className="flex flex-wrap gap-2">
@@ -314,7 +314,7 @@ export function Services() {
                         <Badge
                           key={i}
                           variant="secondary"
-                          className="bg-black/5 text-black"
+                          className="bg-foreground/5 text-foreground"
                         >
                           {feature}
                         </Badge>
@@ -322,7 +322,7 @@ export function Services() {
                       {service.features.length > 3 && (
                         <Badge
                           variant="outline"
-                          className="border-black/10 text-black"
+                          className="border-foreground/10 text-foreground"
                         >
                           +{service.features.length - 3}
                         </Badge>

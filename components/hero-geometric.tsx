@@ -331,7 +331,7 @@ export default function HeroGeometric({
   };
 
   return (
-    <div className="absolute inset-0 -z-10 overflow-hidden bg-[#ffffff]">
+    <div className="absolute inset-0 -z-10 overflow-hidden bg-background">
       {/* Base geometric background image */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -410,9 +410,9 @@ export default function HeroGeometric({
               variants={fadeUpVariants}
               initial="hidden"
               animate="visible"
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/[0.05] border border-black/[0.1] mb-8 md:mb-12"
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-foreground/[0.05] border border-foreground/[0.1] mb-8 md:mb-12"
             >
-              <span className="text-sm text-black/60 tracking-wide">
+              <span className="text-sm text-foreground/60 tracking-wide">
                 {badge}
               </span>
             </motion.div>
@@ -424,13 +424,13 @@ export default function HeroGeometric({
               animate="visible"
             >
               <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold mb-6 md:mb-8 tracking-tight">
-                <span className="bg-clip-text text-transparent bg-gradient-to-b from-black/90 to-black/70">
+                <span className="bg-clip-text text-transparent bg-gradient-to-b from-foreground/90 to-foreground/70">
                   {title1}
                 </span>
                 <br />
                 <span
                   className={cn(
-                    "bg-clip-text text-transparent bg-gradient-to-r from-black/80 via-black/90 to-black/80",
+                    "bg-clip-text text-transparent bg-gradient-to-r from-foreground/80 via-foreground/90 to-foreground/80",
                     pacifico.className
                   )}
                 >
@@ -445,7 +445,7 @@ export default function HeroGeometric({
               initial="hidden"
               animate="visible"
             >
-              <p className="text-base sm:text-lg md:text-xl text-black/60 mb-8 leading-relaxed font-light tracking-wide max-w-xl mx-auto px-4">
+              <p className="text-base sm:text-lg md:text-xl text-foreground/60 mb-8 leading-relaxed font-light tracking-wide max-w-xl mx-auto px-4">
                 Crafting exceptional digital experiences through innovative
                 design and cutting-edge technology.
               </p>

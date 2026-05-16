@@ -134,14 +134,14 @@ export function About() {
         {/* Título principal con animación de derecha a izquierda - Reducido espacio */}
         <div className="mb-8 md:mb-12 overflow-hidden">
           <motion.h1
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-black"
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-foreground"
             variants={titleVariants}
             initial="hidden"
             animate="visible"
           >
             Sobre mí
           </motion.h1>
-          <motion.div className="h-px bg-black/20 mt-4" variants={lineAnimation} initial="hidden" animate="visible" />
+          <motion.div className="h-px bg-foreground/20 mt-4" variants={lineAnimation} initial="hidden" animate="visible" />
         </div>
 
         {/* Contenido principal con diseño arquitectónico */}
@@ -157,21 +157,21 @@ export function About() {
                   {/* Nombre superpuesto en la imagen */}
                   <div className="absolute bottom-0 left-0 p-8 w-full">
                     <h2 className={cn("text-4xl font-light mb-1 tracking-wide", playfair.className)}>Javier Reyes</h2>
-                    <p className="text-black/70 text-lg font-light tracking-widest uppercase">Full Stack Developer</p>
+                    <p className="text-foreground/70 text-lg font-light tracking-widest uppercase">Full Stack Developer</p>
                   </div>
                 </div>
 
                 {/* Botones de acción */}
                 <div className="pt-2">
                   <div className="flex flex-col gap-3">
-                    <Button className="rounded-none gap-2 bg-transparent hover:bg-black/5 text-black border border-black/10 h-12 justify-start px-6">
+                    <Button className="rounded-none gap-2 bg-transparent hover:bg-foreground/5 text-foreground border border-foreground/10 h-12 justify-start px-6">
                       <Download size={16} />
                       <span className="ml-2">Descargar CV</span>
                       <ArrowRight size={14} className="ml-auto opacity-50" />
                     </Button>
                     <Button
                       variant="outline"
-                      className="rounded-none gap-2 border-black/10 text-black hover:bg-black/5 h-12 justify-start px-6"
+                      className="rounded-none gap-2 border-foreground/10 text-foreground hover:bg-foreground/5 h-12 justify-start px-6"
                     >
                       <ExternalLink size={16} />
                       <span className="ml-2">LinkedIn</span>
@@ -196,11 +196,11 @@ export function About() {
                     >
                       <motion.div className="flex items-center gap-4 mb-6" variants={itemVariants}>
                         <h2 className={cn("text-3xl font-light", playfair.className)}>Biografía</h2>
-                        <div className="h-px bg-black/20 flex-grow"></div>
+                        <div className="h-px bg-foreground/20 flex-grow"></div>
                       </motion.div>
 
                       <motion.div
-                        className="space-y-4 text-black/80 leading-relaxed text-lg font-light"
+                        className="space-y-4 text-foreground/80 leading-relaxed text-lg font-light"
                         variants={itemVariants}
                       >
                         <motion.p variants={itemVariants}>
@@ -221,8 +221,8 @@ export function About() {
                       </motion.div>
 
                       <motion.div className="pt-4" variants={itemVariants}>
-                        <div className="inline-flex items-center gap-2 px-4 py-2 border border-black/10 bg-black/5">
-                          <span className="text-sm text-black/60">Disponible para nuevos proyectos</span>
+                        <div className="inline-flex items-center gap-2 px-4 py-2 border border-foreground/10 bg-foreground/5">
+                          <span className="text-sm text-foreground/60">Disponible para nuevos proyectos</span>
                         </div>
                       </motion.div>
                     </motion.div>
@@ -240,12 +240,12 @@ export function About() {
                     >
                       <motion.div className="flex items-center gap-4 mb-6" variants={itemVariants}>
                         <h2 className={cn("text-3xl font-light", playfair.className)}>Habilidades</h2>
-                        <div className="h-px bg-black/20 flex-grow"></div>
+                        <div className="h-px bg-foreground/20 flex-grow"></div>
                       </motion.div>
 
                       <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6" variants={itemVariants}>
                         <motion.div className="space-y-4" variants={itemVariants}>
-                          <h3 className="text-xl font-light text-black/90">Desarrollo Frontend</h3>
+                          <h3 className="text-xl font-light text-foreground/90">Desarrollo Frontend</h3>
                           <div className="space-y-3">
                             {["JavaScript", "TypeScript", "React", "Next.js", "Tailwind CSS", "Framer Motion"].map(
                               (skill, index) => (
@@ -255,10 +255,10 @@ export function About() {
                                   variants={itemVariants}
                                   custom={index}
                                 >
-                                  <span className="text-black/70">{skill}</span>
-                                  <div className="w-24 h-px bg-black/10">
+                                  <span className="text-foreground/70">{skill}</span>
+                                  <div className="w-24 h-px bg-foreground/10">
                                     <motion.div
-                                      className="h-full bg-black/40"
+                                      className="h-full bg-foreground/40"
                                       initial={{ width: 0 }}
                                       animate={{ width: `${Math.random() * 40 + 60}%` }}
                                       transition={{ duration: 0.6, delay: 0.1 * index }}
@@ -271,7 +271,7 @@ export function About() {
                         </motion.div>
 
                         <motion.div className="space-y-4" variants={itemVariants}>
-                          <h3 className="text-xl font-light text-black/90">Desarrollo Backend</h3>
+                          <h3 className="text-xl font-light text-foreground/90">Desarrollo Backend</h3>
                           <div className="space-y-3">
                             {["Node.js", "Express", "MongoDB", "PostgreSQL", "GraphQL", "AWS"].map((skill, index) => (
                               <motion.div
@@ -280,10 +280,10 @@ export function About() {
                                 variants={itemVariants}
                                 custom={index}
                               >
-                                <span className="text-black/70">{skill}</span>
-                                <div className="w-24 h-px bg-black/10">
+                                <span className="text-foreground/70">{skill}</span>
+                                <div className="w-24 h-px bg-foreground/10">
                                   <motion.div
-                                    className="h-full bg-black/40"
+                                    className="h-full bg-foreground/40"
                                     initial={{ width: 0 }}
                                     animate={{ width: `${Math.random() * 40 + 60}%` }}
                                     transition={{ duration: 0.6, delay: 0.1 * index }}
@@ -296,7 +296,7 @@ export function About() {
                       </motion.div>
 
                       <motion.div className="pt-4" variants={itemVariants}>
-                        <h3 className="text-xl font-light text-black/90 mb-3">Otras tecnologías</h3>
+                        <h3 className="text-xl font-light text-foreground/90 mb-3">Otras tecnologías</h3>
                         <div className="flex flex-wrap gap-2">
                           {["Docker", "Git", "CI/CD", "Jest", "Cypress", "Figma", "Adobe XD", "Photoshop"].map(
                             (skill, index) => (
@@ -310,7 +310,7 @@ export function About() {
                               >
                                 <Badge
                                   variant="outline"
-                                  className="bg-transparent border-black/10 text-black/70 py-1.5 px-3 text-sm rounded-none"
+                                  className="bg-transparent border-foreground/10 text-foreground/70 py-1.5 px-3 text-sm rounded-none"
                                 >
                                   {skill}
                                 </Badge>
@@ -334,16 +334,16 @@ export function About() {
                     >
                       <motion.div className="flex items-center gap-4 mb-6" variants={itemVariants}>
                         <h2 className={cn("text-3xl font-light", playfair.className)}>Experiencia</h2>
-                        <div className="h-px bg-black/20 flex-grow"></div>
+                        <div className="h-px bg-foreground/20 flex-grow"></div>
                       </motion.div>
 
                       <motion.div className="space-y-8" variants={itemVariants}>
                         <motion.div className="relative grid grid-cols-12 gap-4" variants={itemVariants}>
-                          <div className="col-span-3 text-black/50 text-sm">2021 - Presente</div>
+                          <div className="col-span-3 text-foreground/50 text-sm">2021 - Presente</div>
                           <div className="col-span-9 space-y-2">
                             <h3 className="text-xl font-medium">Senior Full Stack Developer</h3>
-                            <p className="text-black/60 italic">Tech Innovations Inc.</p>
-                            <p className="text-black/80 mt-3">
+                            <p className="text-foreground/60 italic">Tech Innovations Inc.</p>
+                            <p className="text-foreground/80 mt-3">
                               Lideré el desarrollo de aplicaciones web y móviles para clientes de diversos sectores,
                               implementando arquitecturas escalables y soluciones innovadoras.
                             </p>
@@ -351,7 +351,7 @@ export function About() {
                               {["React", "Node.js", "AWS", "MongoDB"].map((tech, i) => (
                                 <motion.span
                                   key={i}
-                                  className="text-xs text-black/40 px-2 py-1 border border-black/10"
+                                  className="text-xs text-foreground/40 px-2 py-1 border border-foreground/10"
                                   initial={{ opacity: 0, x: -10 }}
                                   animate={{ opacity: 1, x: 0 }}
                                   transition={{ duration: 0.3, delay: 0.1 * i }}
@@ -363,14 +363,14 @@ export function About() {
                           </div>
                         </motion.div>
 
-                        <motion.div className="w-full h-px bg-black/5" variants={itemVariants}></motion.div>
+                        <motion.div className="w-full h-px bg-foreground/5" variants={itemVariants}></motion.div>
 
                         <motion.div className="relative grid grid-cols-12 gap-4" variants={itemVariants}>
-                          <div className="col-span-3 text-black/50 text-sm">2019 - 2021</div>
+                          <div className="col-span-3 text-foreground/50 text-sm">2019 - 2021</div>
                           <div className="col-span-9 space-y-2">
                             <h3 className="text-xl font-medium">Frontend Developer</h3>
-                            <p className="text-black/60 italic">Digital Solutions</p>
-                            <p className="text-black/80 mt-3">
+                            <p className="text-foreground/60 italic">Digital Solutions</p>
+                            <p className="text-foreground/80 mt-3">
                               Desarrollé interfaces de usuario intuitivas y responsivas utilizando React y Next.js,
                               colaborando estrechamente con diseñadores UX/UI y backend developers.
                             </p>
@@ -378,7 +378,7 @@ export function About() {
                               {["React", "Next.js", "Tailwind CSS", "Firebase"].map((tech, i) => (
                                 <motion.span
                                   key={i}
-                                  className="text-xs text-black/40 px-2 py-1 border border-black/10"
+                                  className="text-xs text-foreground/40 px-2 py-1 border border-foreground/10"
                                   initial={{ opacity: 0, x: -10 }}
                                   animate={{ opacity: 1, x: 0 }}
                                   transition={{ duration: 0.3, delay: 0.1 * i }}
@@ -405,22 +405,22 @@ export function About() {
                     >
                       <motion.div className="flex items-center gap-4 mb-6" variants={itemVariants}>
                         <h2 className={cn("text-3xl font-light", playfair.className)}>Educación</h2>
-                        <div className="h-px bg-black/20 flex-grow"></div>
+                        <div className="h-px bg-foreground/20 flex-grow"></div>
                       </motion.div>
 
                       <motion.div className="space-y-8" variants={itemVariants}>
                         <motion.div className="relative grid grid-cols-12 gap-4" variants={itemVariants}>
-                          <div className="col-span-3 text-black/50 text-sm">2016 - 2017</div>
+                          <div className="col-span-3 text-foreground/50 text-sm">2016 - 2017</div>
                           <div className="col-span-9 space-y-2">
                             <h3 className="text-xl font-medium">Máster en Desarrollo Web</h3>
-                            <p className="text-black/60 italic">Universidad Tecnológica</p>
-                            <p className="text-black/80 mt-3">
+                            <p className="text-foreground/60 italic">Universidad Tecnológica</p>
+                            <p className="text-foreground/80 mt-3">
                               Especialización en tecnologías web modernas, arquitectura de software y metodologías
                               ágiles.
                             </p>
                             <motion.div className="flex flex-wrap gap-2 mt-3">
                               <motion.span
-                                className="text-xs text-black/40 px-2 py-1 border border-black/10"
+                                className="text-xs text-foreground/40 px-2 py-1 border border-foreground/10"
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.4 }}
@@ -431,20 +431,20 @@ export function About() {
                           </div>
                         </motion.div>
 
-                        <motion.div className="w-full h-px bg-black/5" variants={itemVariants}></motion.div>
+                        <motion.div className="w-full h-px bg-foreground/5" variants={itemVariants}></motion.div>
 
                         <motion.div className="relative grid grid-cols-12 gap-4" variants={itemVariants}>
-                          <div className="col-span-3 text-black/50 text-sm">2012 - 2016</div>
+                          <div className="col-span-3 text-foreground/50 text-sm">2012 - 2016</div>
                           <div className="col-span-9 space-y-2">
                             <h3 className="text-xl font-medium">Grado en Ingeniería Informática</h3>
-                            <p className="text-black/60 italic">Universidad Nacional</p>
-                            <p className="text-black/80 mt-3">
+                            <p className="text-foreground/60 italic">Universidad Nacional</p>
+                            <p className="text-foreground/80 mt-3">
                               Formación en fundamentos de programación, algoritmos, bases de datos y desarrollo de
                               software.
                             </p>
                             <motion.div className="flex flex-wrap gap-2 mt-3">
                               <motion.span
-                                className="text-xs text-black/40 px-2 py-1 border border-black/10"
+                                className="text-xs text-foreground/40 px-2 py-1 border border-foreground/10"
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.4 }}
@@ -468,7 +468,7 @@ export function About() {
             variants={fadeInUp}
             custom={1}
           >
-            <h3 className="text-sm uppercase tracking-widest text-black/50 mb-4">Explorar</h3>
+            <h3 className="text-sm uppercase tracking-widest text-foreground/50 mb-4">Explorar</h3>
 
             <nav className="space-y-3">
               {[
@@ -482,15 +482,15 @@ export function About() {
                   onClick={() => setActiveSection(item.id)}
                   className={cn(
                     "group flex items-center space-x-4 w-full text-left transition-all duration-300",
-                    activeSection === item.id ? "text-black" : "text-black/40 hover:text-black/70",
+                    activeSection === item.id ? "text-foreground" : "text-foreground/40 hover:text-foreground/70",
                   )}
                 >
                   <div
                     className={cn(
                       "h-px transition-all duration-300",
                       activeSection === item.id
-                        ? "w-12 bg-black"
-                        : "w-6 bg-black/40 group-hover:w-8 group-hover:bg-black/70",
+                        ? "w-12 bg-foreground"
+                        : "w-6 bg-foreground/40 group-hover:w-8 group-hover:bg-foreground/70",
                     )}
                   />
                   <span
@@ -508,7 +508,7 @@ export function About() {
 
           {/* Navegación móvil - Solo visible en dispositivos pequeños */}
           <motion.div className="lg:hidden mt-8 space-y-4" variants={fadeInUp} custom={1}>
-            <h3 className="text-sm uppercase tracking-widest text-black/50 mb-3">Explorar</h3>
+            <h3 className="text-sm uppercase tracking-widest text-foreground/50 mb-3">Explorar</h3>
 
             <nav className="grid grid-cols-2 gap-3">
               {[
@@ -521,18 +521,18 @@ export function About() {
                   key={item.id}
                   onClick={() => setActiveSection(item.id)}
                   className={cn(
-                    "group flex items-center space-x-2 w-full text-left transition-all duration-300 p-2 border border-black/10 rounded-none",
+                    "group flex items-center space-x-2 w-full text-left transition-all duration-300 p-2 border border-foreground/10 rounded-none",
                     activeSection === item.id
-                      ? "text-black bg-black/5 border-black/20"
-                      : "text-black/40 hover:text-black/70 hover:bg-black/5",
+                      ? "text-foreground bg-foreground/5 border-foreground/20"
+                      : "text-foreground/40 hover:text-foreground/70 hover:bg-foreground/5",
                   )}
                 >
                   <div
                     className={cn(
                       "h-px transition-all duration-300",
                       activeSection === item.id
-                        ? "w-8 bg-black"
-                        : "w-4 bg-black/40 group-hover:w-6 group-hover:bg-black/70",
+                        ? "w-8 bg-foreground"
+                        : "w-4 bg-foreground/40 group-hover:w-6 group-hover:bg-foreground/70",
                     )}
                   />
                   <span

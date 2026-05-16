@@ -62,10 +62,10 @@ export function AI() {
         animate="show"
       >
         <motion.div className="text-center mb-16" variants={item}>
-          <h2 className="text-3xl md:text-5xl font-bold mb-4 font-playfair text-black">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 font-playfair text-foreground">
             Inteligencia Artificial
           </h2>
-          <p className="text-black/70 max-w-2xl mx-auto">
+          <p className="text-foreground/70 max-w-2xl mx-auto">
             Soluciones avanzadas basadas en IA para potenciar tu negocio.
           </p>
         </motion.div>
@@ -78,15 +78,15 @@ export function AI() {
         >
           {aiServices.map((service, index) => (
             <motion.div key={index} variants={item}>
-              <Card className="border border-black/10 bg-white/80 backdrop-blur-sm hover:bg-white transition-colors">
+              <Card className="border border-foreground/10 bg-card/80 backdrop-blur-sm hover:bg-card transition-colors">
                 <CardHeader>
                   <div className="mb-4">{service.icon}</div>
-                  <CardTitle className="text-xl text-black">
+                  <CardTitle className="text-xl text-foreground">
                     {service.title}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription className="text-base text-black/70">
+                  <CardDescription className="text-base text-foreground/70">
                     {service.description}
                   </CardDescription>
                 </CardContent>

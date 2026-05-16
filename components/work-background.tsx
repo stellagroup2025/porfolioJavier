@@ -72,7 +72,7 @@ function WorkShape({
               : "",
             "bg-gradient-to-br to-transparent",
             gradient,
-            "backdrop-blur-[1px] border-2 border-black/[0.12]",
+            "backdrop-blur-[1px] border-2 border-foreground/[0.12]",
             "shadow-[0_12px_40px_0_rgba(0,0,0,0.08)]"
           )}
           style={
@@ -314,7 +314,7 @@ function AnimatedCanvas() {
       // Grid sutil
       const gridSize = 80;
       const gridOpacity = 0.03 + Math.sin(time * 0.5) * 0.01;
-      ctx.strokeStyle = `rgba(0, 0, 0, ${gridOpacity})`;
+      ctx.strokeStyle = `rgba(255, 255, 255, ${gridOpacity})`;
       ctx.lineWidth = 0.5;
 
       for (let x = 0; x < canvas.width; x += gridSize) {
@@ -421,7 +421,7 @@ export function WorkBackground() {
           width={280}
           height={280}
           rotate={25}
-          gradient="from-[#f9f6f2]/[0.25]"
+          gradient="from-background/[0.25]"
           shape="square"
           className="left-[60%] top-[10%]"
         />
@@ -459,7 +459,7 @@ export function WorkBackground() {
       <div className="absolute bottom-[20%] left-[10%] w-[300px] h-[300px] rounded-full bg-[#e1dbd6]/[0.15] blur-3xl" />
       <div className="absolute top-[50%] left-[50%] w-[250px] h-[250px] rounded-full bg-[#e2e2e2]/[0.1] blur-3xl" />
 
-      <div className="absolute inset-0 bg-gradient-to-t from-[#f9f6f2]/80 via-transparent to-[#f9f6f2]/60 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-background/60 pointer-events-none" />
     </motion.div>
   );
 }
