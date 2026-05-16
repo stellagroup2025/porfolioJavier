@@ -89,6 +89,23 @@ function CosmicShape({
 // Las shapes la consumen para calcular su iluminación en cada frame.
 const mousePositionRef = { current: { x: 0.5, y: 0.5, hasMoved: false } };
 
+// Escala fluida 0.55..1.0 según ancho del viewport.
+// 1920px y mayores → 1.0 (tamaños originales).
+// MacBook Air (~1440px) → 0.75. iPad pro / 1024px → ~0.55.
+function useViewportScale() {
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+      setScale(Math.min(1, Math.max(0.55, w / 1920)));
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+  return scale;
+}
+
 // Componente para formas geométricas elegantes
 function ElegantShape({
   className,
@@ -108,6 +125,9 @@ function ElegantShape({
   shape?: "rectangle" | "triangle";
 }) {
   const surfaceRef = useRef<HTMLDivElement>(null);
+  const scale = useViewportScale();
+  const scaledWidth = width * scale;
+  const scaledHeight = height * scale;
 
   useEffect(() => {
     let rafId = 0;
@@ -168,8 +188,8 @@ function ElegantShape({
           ease: "easeInOut",
         }}
         style={{
-          width,
-          height,
+          width: scaledWidth,
+          height: scaledHeight,
         }}
         className="relative"
       >

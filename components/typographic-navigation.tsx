@@ -134,7 +134,8 @@ export function TypographicNavigation({ activeSection, setActiveSection, isTrans
                   onMouseEnter={() => setHoveredItem(item.id)}
                   onMouseLeave={() => setHoveredItem(null)}
                   className={cn(
-                    "text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-black tracking-wide pointer-events-auto relative italic",
+                    "font-black tracking-wide pointer-events-auto relative italic",
+                    "text-[clamp(3.5rem,7vw,9rem)] leading-[1]",
                     playfair.className,
                   )}
                   whileHover={{ x: 20, scale: 1.02 }}

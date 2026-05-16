@@ -104,7 +104,9 @@ export function Home() {
           <h1
             className={cn(
               "font-light tracking-tight leading-tight text-foreground mb-1.5",
-              isMobile ? "text-2xl text-center" : "text-2xl md:text-3xl",
+              isMobile
+                ? "text-2xl text-center"
+                : "text-[clamp(1.5rem,2.1vw,2.25rem)]",
               playfair.className
             )}
           >
@@ -127,7 +129,7 @@ export function Home() {
               "font-light tracking-tight text-foreground/90",
               isMobile
                 ? "text-sm text-center max-w-full"
-                : "text-base md:text-xl max-w-xl"
+                : "text-[clamp(0.95rem,1.25vw,1.25rem)] max-w-xl"
             )}
           >
             {t("home.role")}
@@ -141,7 +143,7 @@ export function Home() {
               "font-light leading-relaxed text-foreground",
               isMobile
                 ? "text-sm text-center max-w-full"
-                : "text-sm md:text-base max-w-xl"
+                : "text-[clamp(0.85rem,1vw,1.05rem)] max-w-xl"
             )}
           >
             {t("home.tagline")}
@@ -153,8 +155,10 @@ export function Home() {
           <div className="space-y-3">
             <span
               className={cn(
-                "text-[10px] sm:text-xs font-light tracking-[0.2em] uppercase text-foreground/70",
-                isMobile ? "block text-center" : ""
+                "font-light tracking-[0.2em] uppercase text-foreground/70",
+                isMobile
+                  ? "text-[10px] block text-center"
+                  : "text-[clamp(10px,0.78vw,12px)]"
               )}
             >
               {t("home.technologies")}
@@ -172,7 +176,7 @@ export function Home() {
                 <motion.span
                   key={index}
                   variants={techItem}
-                  className="px-2 py-1 text-[9px] sm:text-[8px] font-light text-foreground/80 tracking-wide border border-foreground/10 bg-foreground/[0.02] backdrop-blur-sm rounded-sm hover:border-foreground/20 hover:bg-foreground/[0.05] transition-all duration-300"
+                  className="px-2 py-1 text-[clamp(9px,0.72vw,11px)] font-light text-foreground/80 tracking-wide border border-foreground/10 bg-foreground/[0.02] backdrop-blur-sm rounded-sm hover:border-foreground/20 hover:bg-foreground/[0.05] transition-all duration-300"
                   whileHover={{
                     scale: 1.05,
                     y: -1,
