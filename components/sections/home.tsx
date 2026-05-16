@@ -1,11 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
+import { ChevronDown } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { GeometricBackground } from "@/components/multi-background";
 import { Playfair_Display } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/lib/i18n";
+import { mousePositionRef } from "@/lib/mouse-light";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -56,10 +59,18 @@ export function Home() {
     "TypeScript",
     "React",
     "Next.js",
+    "Three.js",
+    "GSAP",
+    "Framer Motion",
+    "Anime.js",
+    "GLSL / WebGL",
+    "Lottie",
+    "Tailwind CSS",
     "Node.js",
     "Express",
     "MongoDB",
     "PostgreSQL",
+    "GraphQL",
   ];
 
   const techContainer = {
@@ -74,9 +85,8 @@ export function Home() {
   };
 
   const techItem = {
-    hidden: { opacity: 0, scale: 0.8 },
+    hidden: { scale: 0.92 },
     show: {
-      opacity: 1,
       scale: 1,
       transition: {
         duration: 0.5,
@@ -153,16 +163,32 @@ export function Home() {
         {/* Tecnologías */}
         <motion.div className="mb-4 sm:mb-6" variants={item}>
           <div className="space-y-3">
-            <span
+            <div
               className={cn(
-                "font-light tracking-[0.2em] uppercase text-foreground/70",
+                "inline-flex items-center gap-2 font-light tracking-[0.2em] uppercase text-foreground/70",
                 isMobile
-                  ? "text-[10px] block text-center"
+                  ? "text-[10px] w-full justify-center"
                   : "text-[clamp(10px,0.78vw,12px)]"
               )}
             >
-              {t("home.technologies")}
-            </span>
+              <span>{t("home.technologies")}</span>
+              <motion.span
+                aria-hidden
+                className="text-foreground/50"
+                animate={{ y: [0, 3, 0], opacity: [0.5, 1, 0.5] }}
+                transition={{
+                  duration: 1.8,
+                  repeat: Number.POSITIVE_INFINITY,
+                  ease: "easeInOut",
+                }}
+              >
+                <ChevronDown
+                  size={isMobile ? 11 : 13}
+                  strokeWidth={1.4}
+                  className="block"
+                />
+              </motion.span>
+            </div>
             <motion.div
               className={cn(
                 "flex flex-wrap gap-x-1.5 gap-y-1.5 sm:gap-x-2 sm:gap-y-2",
@@ -173,22 +199,7 @@ export function Home() {
               animate="show"
             >
               {technologies.map((tech, index) => (
-                <motion.span
-                  key={index}
-                  variants={techItem}
-                  className="px-2 py-1 text-[clamp(9px,0.72vw,11px)] font-light text-foreground/80 tracking-wide border border-foreground/10 bg-foreground/[0.02] backdrop-blur-sm rounded-sm hover:border-foreground/20 hover:bg-foreground/[0.05] transition-all duration-300"
-                  whileHover={{
-                    scale: 1.05,
-                    y: -1,
-                  }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 400,
-                    damping: 10,
-                  }}
-                >
-                  {tech}
-                </motion.span>
+                <TechTag key={index} tech={tech} variants={techItem} />
               ))}
             </motion.div>
           </div>
@@ -196,4 +207,66 @@ export function Home() {
       </motion.div>
     </div>
   );
+}
+
+interface TechTagProps {
+  tech: string
+  variants: {
+    hidden: { scale: number }
+    show: {
+      scale: number
+      transition: { duration: number; ease: number[] }
+    }
+  }
+}
+
+function TechTag({ tech, variants }: TechTagProps) {
+  const ref = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    let rafId = 0
+    const tick = () => {
+      const el = ref.current
+      if (el) {
+        const rect = el.getBoundingClientRect()
+        const cx = rect.left + rect.width / 2
+        const cy = rect.top + rect.height / 2
+        const mouseX = mousePositionRef.current.x * window.innerWidth
+        const mouseY = mousePositionRef.current.y * window.innerHeight
+        const dist = Math.hypot(mouseX - cx, mouseY - cy)
+        const reach = 240
+        const proximity = Math.max(0, 1 - dist / reach)
+        const eased = proximity * proximity
+        el.style.setProperty("--tag-strength", eased.toFixed(3))
+      }
+      rafId = requestAnimationFrame(tick)
+    }
+    rafId = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafId)
+  }, [])
+
+  return (
+    <motion.span
+      ref={ref}
+      variants={variants}
+      className="px-2 py-1 text-[clamp(9px,0.72vw,11px)] font-light tracking-wide border backdrop-blur-sm rounded-sm transition-colors duration-150"
+      style={{
+        opacity: "var(--tag-strength, 0)",
+        color: "rgba(255,255,255, calc(0.4 + 0.6 * var(--tag-strength, 0)))",
+        borderColor: "rgba(255,255,255, calc(0.08 + 0.22 * var(--tag-strength, 0)))",
+        backgroundColor: "rgba(255,255,255, calc(0.02 + 0.06 * var(--tag-strength, 0)))",
+      }}
+      whileHover={{
+        scale: 1.06,
+        y: -1,
+      }}
+      transition={{
+        type: "spring",
+        stiffness: 400,
+        damping: 10,
+      }}
+    >
+      {tech}
+    </motion.span>
+  )
 }

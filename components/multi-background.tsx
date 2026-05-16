@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Pacifico } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { mousePositionRef } from "@/lib/mouse-light";
 import { useState, useEffect, useRef } from "react";
 import {
   ChevronRight,
@@ -84,10 +85,6 @@ function CosmicShape({
     </motion.div>
   );
 }
-
-// Ref compartida que el GeometricBackground actualiza con la posición suavizada del cursor.
-// Las shapes la consumen para calcular su iluminación en cada frame.
-const mousePositionRef = { current: { x: 0.5, y: 0.5, hasMoved: false } };
 
 // Escala fluida 0.55..1.0 según ancho del viewport.
 // 1920px y mayores → 1.0 (tamaños originales).
