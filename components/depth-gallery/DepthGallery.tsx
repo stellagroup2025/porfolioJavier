@@ -4,12 +4,14 @@ import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { SectionLink } from "@/components/section-link"
 import { useTransition } from "@/components/page-transition/TransitionProvider"
+import { useTranslation } from "@/lib/i18n"
 import { AnimationModal } from "./AnimationModal"
 import "./depth-gallery.css"
 
 export function DepthGallery() {
   const router = useRouter()
   const { withTransition } = useTransition()
+  const { t } = useTranslation()
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [isReady, setIsReady] = useState(false)
@@ -56,7 +58,7 @@ export function DepthGallery() {
         section="work"
       />
       <p className="dg-hint" style={{ opacity: isReady ? 0.65 : 0 }}>
-        Scroll para navegar · click en la card en foco para ver la animación
+        {t("animaciones.hint")}
       </p>
       <AnimationModal planeId={activePlaneId} onClose={() => setActivePlaneId(null)} />
     </div>

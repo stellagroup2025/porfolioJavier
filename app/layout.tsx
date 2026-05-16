@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { TransitionProvider } from "@/components/page-transition/TransitionProvider"
+import { LanguageProvider } from "@/lib/i18n"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const playfair = Playfair_Display({
@@ -26,7 +27,9 @@ export default function RootLayout({
     <html lang="es" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} ${playfair.variable} font-sans bg-background text-foreground`}>
         <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
-          <TransitionProvider>{children}</TransitionProvider>
+          <LanguageProvider>
+            <TransitionProvider>{children}</TransitionProvider>
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

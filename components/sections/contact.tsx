@@ -56,7 +56,7 @@ export function Contact() {
   };
 
   const socialLinks = [
-    { name: "LinkedIn", url: "https://linkedin.com/in/javierreyes" },
+    { name: "LinkedIn", url: "https://es.linkedin.com/in/javier-reyes-dev" },
     { name: "Dribbble", url: "https://dribbble.com/javierreyes" },
     { name: "Twitter", url: "https://twitter.com/javierreyes" },
     { name: "GitHub", url: "https://github.com/javierreyes" },

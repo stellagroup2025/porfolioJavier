@@ -3,19 +3,16 @@
 import { AnimatePresence, motion } from "framer-motion"
 import { useEffect } from "react"
 import { X } from "lucide-react"
+import { useTranslation } from "@/lib/i18n"
 
 type AnimationDemo = {
   id: string
-  title: string
-  description: string
   render: () => JSX.Element
 }
 
 const demos: Record<string, AnimationDemo> = {
   fade: {
     id: "fade",
-    title: "Fade In",
-    description: "Transición suave de opacidad. El elemento aparece y desaparece de forma continua.",
     render: () => (
       <motion.div
         className="dg-demo-block"
@@ -28,8 +25,6 @@ const demos: Record<string, AnimationDemo> = {
   },
   scale: {
     id: "scale",
-    title: "Scale Pulse",
-    description: "Pulso de escala continuo. Útil para llamar la atención sin interrumpir el flujo.",
     render: () => (
       <motion.div
         className="dg-demo-block dg-demo-block--round"
@@ -41,8 +36,6 @@ const demos: Record<string, AnimationDemo> = {
   },
   rotate: {
     id: "rotate",
-    title: "Rotate Loop",
-    description: "Rotación continua sobre el eje Z. Ideal para iconos de carga o estados activos.",
     render: () => (
       <motion.div
         className="dg-demo-block"
@@ -54,8 +47,6 @@ const demos: Record<string, AnimationDemo> = {
   },
   slide: {
     id: "slide",
-    title: "Slide X",
-    description: "Desplazamiento horizontal de ida y vuelta. Base de transiciones entre vistas.",
     render: () => (
       <motion.div
         className="dg-demo-block dg-demo-block--sm"
@@ -67,8 +58,6 @@ const demos: Record<string, AnimationDemo> = {
   },
   morph: {
     id: "morph",
-    title: "Morph Shape",
-    description: "Transición entre formas variando border-radius. Cuadrado <-> círculo orgánico.",
     render: () => (
       <motion.div
         className="dg-demo-block"
@@ -80,8 +69,6 @@ const demos: Record<string, AnimationDemo> = {
   },
   spring: {
     id: "spring",
-    title: "Spring Hover",
-    description: "Hover con física de muelle. Pasa el ratón sobre el cuadro para sentir el spring.",
     render: () => (
       <motion.div
         className="dg-demo-block"
@@ -94,8 +81,6 @@ const demos: Record<string, AnimationDemo> = {
   },
   stagger: {
     id: "stagger",
-    title: "Stagger",
-    description: "Aparición secuencial de varios elementos. Da ritmo y guía la lectura del usuario.",
     render: () => (
       <motion.div
         style={{ display: "flex", gap: "0.5rem" }}
@@ -127,8 +112,6 @@ const demos: Record<string, AnimationDemo> = {
   },
   path: {
     id: "path",
-    title: "Path Draw",
-    description: "Animación de trazado de un SVG. La ruta se dibuja y se borra de forma continua.",
     render: () => (
       <svg width="160" height="160" viewBox="0 0 160 160" style={{ overflow: "visible" }}>
         <motion.circle
@@ -154,6 +137,8 @@ type Props = {
 }
 
 export function AnimationModal({ planeId, onClose }: Props) {
+  const { t } = useTranslation()
+
   useEffect(() => {
     if (!planeId) return
     const onKeyDown = (event: KeyboardEvent) => {
@@ -187,16 +172,20 @@ export function AnimationModal({ planeId, onClose }: Props) {
             <button
               type="button"
               onClick={onClose}
-              aria-label="Cerrar"
+              aria-label={t("animaciones.modal.close")}
               className="dg-modal__close"
             >
               <X size={18} />
             </button>
             <div className="dg-modal__stage">{demo.render()}</div>
             <div className="dg-modal__body">
-              <p className="dg-modal__eyebrow">Demo · {demo.id}</p>
-              <h2 className="dg-modal__title">{demo.title}</h2>
-              <p className="dg-modal__description">{demo.description}</p>
+              <p className="dg-modal__eyebrow">
+                {t("animaciones.modal.demoLabel")} · {demo.id}
+              </p>
+              <h2 className="dg-modal__title">{t(`animaciones.modal.${demo.id}.title`)}</h2>
+              <p className="dg-modal__description">
+                {t(`animaciones.modal.${demo.id}.description`)}
+              </p>
             </div>
           </motion.div>
         </motion.div>

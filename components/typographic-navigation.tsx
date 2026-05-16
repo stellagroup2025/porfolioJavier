@@ -4,6 +4,7 @@ import { motion } from "framer-motion"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { Playfair_Display } from "next/font/google"
+import { useTranslation } from "@/lib/i18n"
 
 // Use Playfair Display as a stylish alternative
 const playfair = Playfair_Display({
@@ -20,12 +21,13 @@ interface NavigationProps {
 
 export function TypographicNavigation({ activeSection, setActiveSection, isTransitioning, isMobile }: NavigationProps) {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
+  const { t } = useTranslation()
 
   const navItems = [
-    { id: "work", label: "Work" },
-    { id: "services", label: "Services" },
-    { id: "about", label: "About" },
-    { id: "contact", label: "Contact" },
+    { id: "work", label: t("nav.work") },
+    { id: "services", label: t("nav.services") },
+    { id: "about", label: t("nav.about") },
+    { id: "contact", label: t("nav.contact") },
   ]
 
   // Variantes para animaciones

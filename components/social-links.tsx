@@ -8,8 +8,16 @@ export function SocialLinks() {
   const isMobile = useIsMobile()
 
   const socialLinks = [
-    { icon: <Linkedin size={isMobile ? 16 : 14} />, href: "#", label: "LinkedIn" },
-    { icon: <Instagram size={isMobile ? 16 : 14} />, href: "#", label: "Instagram" },
+    {
+      icon: <Linkedin size={isMobile ? 16 : 14} />,
+      href: "https://es.linkedin.com/in/javier-reyes-dev",
+      label: "LinkedIn",
+    },
+    {
+      icon: <Instagram size={isMobile ? 16 : 14} />,
+      href: "https://www.instagram.com/javier_reyes_b/",
+      label: "Instagram",
+    },
     { icon: <Github size={isMobile ? 16 : 14} />, href: "#", label: "GitHub" },
   ]
 
@@ -41,6 +49,8 @@ export function SocialLinks() {
           <motion.a
             key={index}
             href={link.href}
+            target={link.href === "#" ? undefined : "_blank"}
+            rel={link.href === "#" ? undefined : "noopener noreferrer"}
             aria-label={link.label}
             className="p-3 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:bg-accent hover:text-accent-foreground transition-colors"
             variants={item}
@@ -66,6 +76,8 @@ export function SocialLinks() {
         <motion.a
           key={index}
           href={link.href}
+          target={link.href === "#" ? undefined : "_blank"}
+          rel={link.href === "#" ? undefined : "noopener noreferrer"}
           aria-label={link.label}
           className="p-1.5 sm:p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:bg-accent hover:text-accent-foreground transition-colors"
           variants={item}

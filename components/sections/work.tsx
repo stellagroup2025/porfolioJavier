@@ -9,6 +9,7 @@ import { useIsMobile } from "@/hooks/use-mobile"
 import { PageTransition } from "@/components/page-transition"
 import { WorkBackground } from "@/components/work-background"
 import { useTransition } from "@/components/page-transition/TransitionProvider"
+import { useTranslation } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 import { Playfair_Display } from "next/font/google"
 
@@ -22,13 +23,13 @@ interface WorkProps {
 export function Work({ activeProject, setActiveProject }: WorkProps) {
   const isMobile = useIsMobile()
   const { withTransition } = useTransition()
+  const { t } = useTranslation()
 
   const projects = [
     {
       id: "ecommerce",
-      title: "E-commerce Platform",
-      description:
-        "Plataforma de comercio electrónico completa con gestión de inventario, carrito de compras, pasarela de pagos y panel de administración.",
+      title: t("work.project.ecommerce.title"),
+      description: t("work.project.ecommerce.description"),
       image: "/modern-ecommerce-website.png",
       tags: ["Next.js", "MongoDB", "Stripe", "Tailwind CSS", "Redux"],
       link: "#",
@@ -37,8 +38,8 @@ export function Work({ activeProject, setActiveProject }: WorkProps) {
     },
     {
       id: "animaciones",
-      title: "Animaciones",
-      description: "Galería de demos de animaciones interactivas creadas con Framer Motion y React.",
+      title: t("work.project.animaciones.title"),
+      description: t("work.project.animaciones.description"),
       image: "/data-analytics-dashboard.png",
       tags: ["React", "Framer Motion", "Next.js", "TypeScript", "Tailwind CSS"],
       href: "/animaciones",
@@ -48,8 +49,8 @@ export function Work({ activeProject, setActiveProject }: WorkProps) {
     },
     {
       id: "mobileapp",
-      title: "Mobile App",
-      description: "Aplicación móvil para gestión de tareas y productividad personal.",
+      title: t("work.project.mobileapp.title"),
+      description: t("work.project.mobileapp.description"),
       image: "/mobile-app-interface.png",
       tags: ["React Native", "Redux", "Node.js", "Express", "MongoDB"],
       link: "#",
@@ -58,8 +59,8 @@ export function Work({ activeProject, setActiveProject }: WorkProps) {
     },
     {
       id: "aigenerator",
-      title: "AI Content Generator",
-      description: "Herramienta de generación de contenido utilizando inteligencia artificial.",
+      title: t("work.project.aigenerator.title"),
+      description: t("work.project.aigenerator.description"),
       image: "/ai-content-generator.png",
       tags: ["Python", "TensorFlow", "OpenAI", "Flask", "React"],
       link: "#",
@@ -91,11 +92,11 @@ export function Work({ activeProject, setActiveProject }: WorkProps) {
               isMobile ? "text-3xl text-center" : "text-4xl sm:text-5xl md:text-6xl text-left",
             )}
           >
-            Proyectos
+            {t("work.title")}
           </h1>
 
           <p className={cn("text-foreground/70 mb-4", isMobile ? "text-center text-sm" : "text-left")}>
-            Una selección de mis trabajos más recientes y destacados.
+            {t("work.subtitle")}
           </p>
         </motion.div>
 
@@ -142,14 +143,14 @@ export function Work({ activeProject, setActiveProject }: WorkProps) {
           >
             <Button variant="default" className="gap-2 rounded-full bg-foreground text-white hover:bg-foreground/90 px-8 py-3">
               <ExternalLink size={16} />
-              Ver proyecto en vivo
+              {t("common.viewLive")}
             </Button>
             <Button
               variant="outline"
               className="gap-2 rounded-full border-foreground/20 text-foreground hover:bg-foreground/10 px-8 py-3"
             >
               <Github size={16} />
-              Ver código fuente
+              {t("common.viewSource")}
             </Button>
           </motion.div>
 
@@ -164,7 +165,7 @@ export function Work({ activeProject, setActiveProject }: WorkProps) {
               className="group flex items-center gap-3 text-foreground/60 hover:text-foreground transition-colors"
             >
               <div className="w-8 h-px bg-foreground/20 group-hover:bg-foreground/60 transition-colors" />
-              <span className="text-sm uppercase tracking-widest">Volver a proyectos</span>
+              <span className="text-sm uppercase tracking-widest">{t("common.backToProjects")}</span>
               <div className="w-8 h-px bg-foreground/20 group-hover:bg-foreground/60 transition-colors" />
             </button>
           </motion.div>

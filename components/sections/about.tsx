@@ -170,12 +170,19 @@ export function About() {
                       <ArrowRight size={14} className="ml-auto opacity-50" />
                     </Button>
                     <Button
+                      asChild
                       variant="outline"
                       className="rounded-none gap-2 border-foreground/10 text-foreground hover:bg-foreground/5 h-12 justify-start px-6"
                     >
-                      <ExternalLink size={16} />
-                      <span className="ml-2">LinkedIn</span>
-                      <ArrowRight size={14} className="ml-auto opacity-50" />
+                      <a
+                        href="https://es.linkedin.com/in/javier-reyes-dev"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink size={16} />
+                        <span className="ml-2">LinkedIn</span>
+                        <ArrowRight size={14} className="ml-auto opacity-50" />
+                      </a>
                     </Button>
                   </div>
                 </div>

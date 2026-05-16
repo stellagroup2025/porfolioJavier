@@ -5,6 +5,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { GeometricBackground } from "@/components/multi-background";
 import { Playfair_Display } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -13,6 +14,7 @@ const playfair = Playfair_Display({
 
 export function Home() {
   const isMobile = useIsMobile();
+  const { t } = useTranslation();
 
   const container = {
     hidden: { opacity: 0 },
@@ -128,7 +130,7 @@ export function Home() {
                 : "text-base md:text-xl max-w-xl"
             )}
           >
-            Architect & Publicist Turned Full Stack Developer
+            {t("home.role")}
           </p>
         </motion.div>
 
@@ -142,8 +144,7 @@ export function Home() {
                 : "text-sm md:text-base max-w-xl"
             )}
           >
-            Creo experiencias digitales donde el diseño y la tecnología se
-            entienden sin esfuerzo.
+            {t("home.tagline")}
           </h2>
         </motion.div>
 
@@ -156,7 +157,7 @@ export function Home() {
                 isMobile ? "block text-center" : ""
               )}
             >
-              Tecnologías
+              {t("home.technologies")}
             </span>
             <motion.div
               className={cn(
