@@ -1,25 +1,17 @@
 "use client"
 
-import { motion } from "framer-motion"
+import { AnimatePresence, motion } from "framer-motion"
+import { Logo } from "@/components/logo"
 
 export type RevealerPhase = "idle" | "covering" | "covered" | "uncovering"
 export type RevealerDirection = "forward" | "backward"
 
-/**
- * LEFT_PATHS: M y last L anclados al lado izquierdo (M 0,0 / L 0,10).
- * La curva crece desde x=0 hasta x=10 cubriendo el viewport.
- * Cada keyframe comparte topología con los otros → interpolación limpia.
- */
 const LEFT_PATHS = [
   "M 0,0 L 0,0 C 0,0 0,0 0,5 C 0,10 0,10 0,10 L 0,10 Z",
   "M 0,0 L 0,0 C 0,0 5,0 5,5 C 5,10 0,10 0,10 L 0,10 Z",
   "M 0,0 L 10,0 C 10,0 10,0 10,5 C 10,10 10,10 10,10 L 0,10 Z",
 ]
 
-/**
- * RIGHT_PATHS: M y last L anclados al lado derecho (M 10,0 / L 10,10).
- * La curva crece desde x=10 hasta x=0.
- */
 const RIGHT_PATHS = [
   "M 10,0 L 10,0 C 10,0 10,0 10,5 C 10,10 10,10 10,10 L 10,10 Z",
   "M 10,0 L 10,0 C 10,0 5,0 5,5 C 5,10 10,10 10,10 L 10,10 Z",
@@ -37,8 +29,6 @@ type Plan = {
 }
 
 function buildPlan(phase: RevealerPhase, direction: RevealerDirection): Plan {
-  // Forward: cover entra desde la izquierda y descubre por la derecha.
-  // Backward: cover entra desde la derecha y descubre por la izquierda.
   if (phase === "covering") {
     const set = direction === "forward" ? LEFT_PATHS : RIGHT_PATHS
     return {
@@ -50,7 +40,6 @@ function buildPlan(phase: RevealerPhase, direction: RevealerDirection): Plan {
     }
   }
   if (phase === "covered") {
-    // Igual al último keyframe del cover correspondiente. No anima.
     const set = direction === "forward" ? LEFT_PATHS : RIGHT_PATHS
     return {
       key: `${direction}-covered`,
@@ -61,9 +50,6 @@ function buildPlan(phase: RevealerPhase, direction: RevealerDirection): Plan {
     }
   }
   if (phase === "uncovering") {
-    // Forward uncover usa RIGHT_PATHS revertido: arranca cubierto desde la derecha
-    // y la curva se va por la derecha → el lado izquierdo queda libre primero.
-    // Backward uncover usa LEFT_PATHS revertido: simétrico.
     const baseSet = direction === "forward" ? RIGHT_PATHS : LEFT_PATHS
     const reversed = [baseSet[2], baseSet[1], baseSet[0]]
     return {
@@ -74,7 +60,6 @@ function buildPlan(phase: RevealerPhase, direction: RevealerDirection): Plan {
       withTimes: true,
     }
   }
-  // idle
   return {
     key: "idle",
     initialPath: LEFT_PATHS[0],
@@ -83,6 +68,16 @@ function buildPlan(phase: RevealerPhase, direction: RevealerDirection): Plan {
     withTimes: false,
   }
 }
+
+/**
+ * Tiempos coordinados de la firma central (durante phase=covered).
+ * Total ~700ms: línea de entrada → logo aparece → línea de salida.
+ */
+const INBOUND_DURATION = 0.32
+const LOGO_DELAY = 0.22
+const LOGO_DURATION = 0.22
+const OUTBOUND_DELAY = 0.36
+const OUTBOUND_DURATION = 0.32
 
 export function RevealerTransition({
   phase,
@@ -94,25 +89,100 @@ export function RevealerTransition({
   const isVisible = phase !== "idle"
   const plan = buildPlan(phase, direction)
 
+  // En forward la línea ENTRA por la izquierda y SALE por la derecha.
+  // En backward la línea ENTRA por la derecha y SALE por la izquierda.
+  // Como el layout JSX es [izquierda][logo][derecha], los delays se asignan
+  // según qué lado del logo corresponde a la entrada en cada dirección.
+  const transformOrigin = direction === "forward" ? "left center" : "right center"
+  const leftIsInbound = direction === "forward"
+  const leftDelay = leftIsInbound ? 0 : OUTBOUND_DELAY
+  const leftDuration = leftIsInbound ? INBOUND_DURATION : OUTBOUND_DURATION
+  const rightDelay = leftIsInbound ? OUTBOUND_DELAY : 0
+  const rightDuration = leftIsInbound ? OUTBOUND_DURATION : INBOUND_DURATION
+
   return (
-    <svg
+    <div
       aria-hidden
-      className="fixed inset-0 z-[900] pointer-events-none w-full h-full"
-      viewBox="0 0 10 10"
-      preserveAspectRatio="none"
+      className="fixed inset-0 z-[900] pointer-events-none"
       style={{ visibility: isVisible ? "visible" : "hidden" }}
     >
-      <motion.path
-        key={plan.key}
-        fill="#0d0d0f"
-        initial={{ d: plan.initialPath }}
-        animate={{ d: plan.animateTarget }}
-        transition={{
-          duration: plan.duration,
-          ease: EASE,
-          times: plan.withTimes ? [0, 0.5, 1] : undefined,
-        }}
-      />
-    </svg>
+      <svg
+        className="absolute inset-0 w-full h-full"
+        viewBox="0 0 10 10"
+        preserveAspectRatio="none"
+      >
+        <motion.path
+          key={plan.key}
+          fill="#0d0d0f"
+          initial={{ d: plan.initialPath }}
+          animate={{ d: plan.animateTarget }}
+          transition={{
+            duration: plan.duration,
+            ease: EASE,
+            times: plan.withTimes ? [0, 0.5, 1] : undefined,
+          }}
+        />
+      </svg>
+
+      <AnimatePresence>
+        {phase === "covered" && (
+          <motion.div
+            key={`signature-${direction}`}
+            className="absolute inset-0 flex items-center justify-center gap-5 sm:gap-7 px-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+          >
+            {/* Línea izquierda del layout */}
+            <motion.div
+              className="flex-1 h-px bg-foreground/45"
+              style={{ transformOrigin }}
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{
+                duration: leftDuration,
+                delay: leftDelay,
+                ease: [0.65, 0, 0.35, 1],
+              }}
+            />
+
+            {/* Logo: aparece después de la línea de entrada y se va antes de la de salida */}
+            <motion.div
+              className="relative shrink-0"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{
+                opacity: [0, 1, 1, 0],
+                scale: [0.9, 1, 1, 0.92],
+              }}
+              transition={{
+                duration: 0.6,
+                times: [0, 0.35, 0.7, 1],
+                delay: LOGO_DELAY,
+                ease: "easeInOut",
+              }}
+            >
+              <Logo
+                interactive={false}
+                className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24"
+              />
+            </motion.div>
+
+            {/* Línea derecha del layout */}
+            <motion.div
+              className="flex-1 h-px bg-foreground/45"
+              style={{ transformOrigin }}
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{
+                duration: rightDuration,
+                delay: rightDelay,
+                ease: [0.65, 0, 0.35, 1],
+              }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   )
 }

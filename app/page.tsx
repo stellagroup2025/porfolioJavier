@@ -46,7 +46,7 @@ export default function Portfolio() {
       setActiveProject(null);
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 140));
+    await new Promise((resolve) => setTimeout(resolve, 800));
     setRevealerPhase("uncovering");
     await new Promise((resolve) => setTimeout(resolve, 1200));
 
