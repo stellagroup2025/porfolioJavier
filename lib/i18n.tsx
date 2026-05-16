@@ -144,6 +144,7 @@ const dictionary: Dictionary = {
   "about.gpa": { es: "Nota media:", en: "GPA:" },
 
   // Contact
+  "contact.hello": { es: "Hola.", en: "Hello." },
   "contact.email": { es: "Email:", en: "Email:" },
   "contact.online": { es: "En internet:", en: "Online:" },
   "contact.quote": {

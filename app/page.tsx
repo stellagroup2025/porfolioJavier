@@ -15,39 +15,49 @@ import { Logo } from "@/components/logo";
 import { PageTransition } from "@/components/page-transition";
 import { SectionLink } from "@/components/section-link";
 import { useTransition } from "@/components/page-transition/TransitionProvider";
+import {
+  RevealerTransition,
+  type RevealerDirection,
+  type RevealerPhase,
+} from "@/components/page-transition/RevealerTransition";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function Portfolio() {
   const [activeSection, setActiveSection] = useState("home");
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [activeProject, setActiveProject] = useState<string | null>(null);
+  const [revealerPhase, setRevealerPhase] = useState<RevealerPhase>("idle");
+  const [revealerDirection, setRevealerDirection] =
+    useState<RevealerDirection>("forward");
   const isMobile = useIsMobile();
   const { withTransition } = useTransition();
 
-  const handleSectionChange = (section: string) => {
-    if (activeSection !== section && !isTransitioning) {
-      setIsTransitioning(true);
-      setActiveSection(section);
+  const handleSectionChange = async (section: string) => {
+    if (activeSection === section || isTransitioning) return;
 
-      // Reset active project when changing sections
-      if (section !== "work") {
-        setActiveProject(null);
-      }
+    setIsTransitioning(true);
+    setRevealerDirection(section === "home" ? "backward" : "forward");
+    setRevealerPhase("covering");
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+
+    setRevealerPhase("covered");
+    setActiveSection(section);
+    if (section !== "work") {
+      setActiveProject(null);
     }
+
+    await new Promise((resolve) => setTimeout(resolve, 140));
+    setRevealerPhase("uncovering");
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+
+    setRevealerPhase("idle");
+    setIsTransitioning(false);
   };
 
   // Function to set active project (will be passed to Work component)
   const handleProjectChange = (projectId: string | null) => {
     setActiveProject(projectId);
   };
-
-  useEffect(() => {
-    // Reset transitioning state after animation completes
-    const timer = setTimeout(() => {
-      setIsTransitioning(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [activeSection]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -140,6 +150,8 @@ export default function Portfolio() {
       >
         <SocialLinks />
       </footer>
+
+      <RevealerTransition phase={revealerPhase} direction={revealerDirection} />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import Link from "next/link";
 import { Playfair_Display, Cormorant_Garamond } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -29,6 +30,7 @@ export function Contact() {
   const isMobile = useIsMobile();
   const containerRef = useRef(null);
   const isInView = useInView(containerRef, { once: false, amount: 0.2 });
+  const { t } = useTranslation();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -57,9 +59,8 @@ export function Contact() {
 
   const socialLinks = [
     { name: "LinkedIn", url: "https://es.linkedin.com/in/javier-reyes-dev" },
-    { name: "Dribbble", url: "https://dribbble.com/javierreyes" },
-    { name: "Twitter", url: "https://twitter.com/javierreyes" },
-    { name: "GitHub", url: "https://github.com/javierreyes" },
+    { name: "Instagram", url: "https://www.instagram.com/javier_reyes_b/" },
+    { name: "GitHub", url: "#" },
   ];
 
   const fadeIn = {
@@ -75,7 +76,7 @@ export function Contact() {
   };
 
   // Animación para las letras del título
-  const titleText = "Hello.";
+  const titleText = t("contact.hello");
   const letters = titleText.split("");
 
   const containerVariants = {
@@ -132,8 +133,8 @@ export function Contact() {
           alt="Workspace background"
           className="w-full h-full object-cover"
         />
-        {/* Light overlay for better text readability */}
-        <div className="absolute inset-0 bg-white/60" />
+        {/* Dark overlay for better text readability */}
+        <div className="absolute inset-0 bg-background/80" />
         {/* Subtle animated elements */}
         <div className="absolute inset-0 overflow-hidden">
           {/* Floating particles */}
@@ -211,8 +212,7 @@ export function Contact() {
           initial="hidden"
           animate="visible"
         >
-          "Cada paso es una oportunidad, cada desafío una lección, y cada meta
-          el comienzo de algo aún más grande."
+          {t("contact.quote")}
         </motion.p>
       </div>
 
@@ -231,16 +231,16 @@ export function Contact() {
                 cormorant.className
               )}
             >
-              Email:
+              {t("contact.email")}
             </p>
             <a
-              href="mailto:hello@javierreyes.com"
+              href="mailto:jreyes@avanzadi.com"
               className={cn(
                 "text-xl sm:text-2xl font-light text-foreground hover:text-foreground/80 transition-colors tracking-wide",
                 cormorant.className
               )}
             >
-              hello@javierreyes.com
+              jreyes@avanzadi.com
             </a>
           </div>
 
@@ -251,7 +251,7 @@ export function Contact() {
                 cormorant.className
               )}
             >
-              En internet:
+              {t("contact.online")}
             </p>
             <div className="flex flex-wrap gap-x-6 gap-y-1">
               {socialLinks.map((link, index) => (
