@@ -11,6 +11,12 @@ class Engine {
     this.canvas = canvas
     this.container = container || canvas.parentElement || document.body
     this.onPlaneClick = typeof options.onPlaneClick === "function" ? options.onPlaneClick : null
+    this.onPlaneFocusChange =
+      typeof options.onPlaneFocusChange === "function" ? options.onPlaneFocusChange : null
+    this._lastFocusedPlaneIndex = -1
+    // Overlay HTML que debe seguir al plano en foco (lo asigna React).
+    this._overlayElement = null
+    this._overlayPlaneIndex = -1
     this.experience = new Experience(this.container)
     this.isInitialized = false
     this.isRunning = false
@@ -135,12 +141,62 @@ class Engine {
 
     this.scroll.update()
     this.experience.update(time, this.camera, this.scroll)
+    // Tick a las animaciones dinámicas inyectadas como textura de los planos.
+    this.experience.gallery.tickAnimations(time)
+
+    // Notificar al React qué plano está en foco para sincronizar overlays externos.
+    const blend = this.experience.gallery.getPlaneBlendData(this.camera.position.z)
+    if (blend) {
+      const focusedIndex = blend.blend >= 0.5 ? blend.nextPlaneIndex : blend.currentPlaneIndex
+      if (focusedIndex !== this._lastFocusedPlaneIndex) {
+        this._lastFocusedPlaneIndex = focusedIndex
+        if (this.onPlaneFocusChange) {
+          const planeId = this.experience.gallery.getPlaneIdByIndex(focusedIndex)
+          this.onPlaneFocusChange(planeId, focusedIndex)
+        }
+      }
+    }
+
+    // Posicionar el overlay HTML para que coincida con el plano objetivo.
+    if (this._overlayElement && this._overlayPlaneIndex >= 0) {
+      const rect = this.experience.gallery.getPlaneScreenRect(
+        this._overlayPlaneIndex,
+        this.camera,
+        this.canvas.clientWidth,
+        this.canvas.clientHeight
+      )
+      if (rect) {
+        const style = this._overlayElement.style
+        style.left = `${rect.left}px`
+        style.top = `${rect.top}px`
+        style.width = `${rect.width}px`
+        style.height = `${rect.height}px`
+        // El plano del depth gallery tiene la misma opacity que su material
+        const plane = this.experience.gallery.planes[this._overlayPlaneIndex]
+        const opacity = plane?.material?.opacity ?? 0
+        style.opacity = String(opacity)
+      }
+    }
 
     this.renderer.clear(true, true, true)
     this.experience.background.render(this.renderer)
     this.renderer.clearDepth()
     this.renderer.render(this.scene, this.camera)
     this.experience.label.render()
+  }
+
+  /**
+   * Asigna un elemento HTML que el Engine ajustará en cada frame para que
+   * coincida con el rect en pantalla del plano cuyo id se pasa.
+   */
+  setTrackingOverlay(element, planeId) {
+    this._overlayElement = element ?? null
+    if (!element || !planeId) {
+      this._overlayPlaneIndex = -1
+      return
+    }
+    const idx = this.experience.gallery.planeConfig.findIndex((p) => p.id === planeId)
+    this._overlayPlaneIndex = idx
   }
 
   dispose() {

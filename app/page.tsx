@@ -99,17 +99,18 @@ export default function Portfolio() {
 
   return (
     <div className="min-h-screen overflow-hidden text-foreground">
-      <header className="fixed top-0 left-0 w-full z-50 px-4 sm:px-6 py-4">
+      <header className="fixed top-0 left-0 w-full z-50 px-4 sm:px-6 py-4 pointer-events-none">
         <div className="flex items-center justify-between">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            className="pointer-events-auto"
           >
             <Logo onClick={() => handleSectionChange("home")} />
           </motion.div>
 
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-3 sm:gap-4 pointer-events-auto">
             <LanguageToggle />
           </div>
         </div>

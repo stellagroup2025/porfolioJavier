@@ -1,5 +1,6 @@
 import * as THREE from "three"
 import { galleryPlaneData } from "./galleryData"
+import { animationRegistry } from "./animations"
 
 function createTextTexture(title, bgColor, textColor) {
   const canvas = document.createElement("canvas")
@@ -101,11 +102,25 @@ class Gallery {
     const planeGeometry = new THREE.PlaneGeometry(3, 3)
 
     this.planeConfig.forEach((plane, index) => {
-      const texture = createTextTexture(
-        plane.title || plane.label?.word || `tone ${index + 1}`,
-        plane.textBgColor || plane.fallbackColor || "#ffffff",
-        plane.textColor || "#1a1a1a"
-      )
+      // Si la card tiene una animación registrada, la inyectamos como textura dinámica.
+      const animationFactory = plane.animationId
+        ? animationRegistry[plane.animationId]
+        : null
+      let texture
+      let animationHandle = null
+      if (animationFactory) {
+        animationHandle = animationFactory(1024, 1024)
+        texture = new THREE.CanvasTexture(animationHandle.canvas)
+        texture.colorSpace = THREE.SRGBColorSpace
+        texture.minFilter = THREE.LinearFilter
+        texture.magFilter = THREE.LinearFilter
+      } else {
+        texture = createTextTexture(
+          plane.title || plane.label?.word || `tone ${index + 1}`,
+          plane.textBgColor || plane.fallbackColor || "#ffffff",
+          plane.textColor || "#1a1a1a"
+        )
+      }
       const aspectRatio = 1
       const fallbackColor = plane.fallbackColor || "#ffffff"
       const accentColor = plane.accentColor || fallbackColor
@@ -131,9 +146,26 @@ class Gallery {
       planeMesh.userData.label = labelData
       planeMesh.userData.texture = texture
       planeMesh.userData.aspectRatio = aspectRatio
+      planeMesh.userData.animationHandle = animationHandle
       scene.add(planeMesh)
       this.planes.push(planeMesh)
     })
+  }
+
+  /**
+   * Llamar cada frame para tick a las animaciones dinámicas (canvas textures).
+   */
+  tickAnimations(time) {
+    for (let i = 0; i < this.planes.length; i += 1) {
+      const plane = this.planes[i]
+      const handle = plane.userData.animationHandle
+      if (!handle) continue
+      // Solo renderiza si el plano tiene visibilidad apreciable, para ahorrar GPU.
+      const opacity = plane.material.opacity || 0
+      if (opacity < 0.02) continue
+      handle.render(time)
+      plane.userData.texture.needsUpdate = true
+    }
   }
 
   getPlaneLabelData(planeDefinition, index) {
@@ -301,6 +333,42 @@ class Gallery {
     return this.planeConfig[index]?.id || null
   }
 
+  /**
+   * Devuelve el bounding box (en pixels del viewport) del plano dado proyectado
+   * por la cámara. Útil para superponer elementos HTML que deben coincidir con la card.
+   */
+  getPlaneScreenRect(index, camera, viewportWidth, viewportHeight) {
+    const plane = this.planes[index]
+    if (!plane) return null
+    plane.updateMatrixWorld()
+    // 4 esquinas del PlaneGeometry(3,3) en local space.
+    const corners = [
+      new THREE.Vector3(-1.5, 1.5, 0),
+      new THREE.Vector3(1.5, 1.5, 0),
+      new THREE.Vector3(1.5, -1.5, 0),
+      new THREE.Vector3(-1.5, -1.5, 0),
+    ]
+    let minX = Infinity,
+      minY = Infinity,
+      maxX = -Infinity,
+      maxY = -Infinity
+    for (const corner of corners) {
+      corner.applyMatrix4(plane.matrixWorld).project(camera)
+      const sx = ((corner.x + 1) / 2) * viewportWidth
+      const sy = ((1 - corner.y) / 2) * viewportHeight
+      if (sx < minX) minX = sx
+      if (sy < minY) minY = sy
+      if (sx > maxX) maxX = sx
+      if (sy > maxY) maxY = sy
+    }
+    return {
+      left: minX,
+      top: minY,
+      width: maxX - minX,
+      height: maxY - minY,
+    }
+  }
+
   updatePlaneMaterialMode() {
     this.planes.forEach((plane) => {
       const planeMaterial = plane.material
@@ -416,6 +484,7 @@ class Gallery {
     window.removeEventListener("pointerleave", this.onPointerLeave)
 
     this.planes.forEach((plane) => {
+      plane.userData.animationHandle?.dispose()
       plane.userData.texture?.dispose()
       plane.material.dispose()
       plane.geometry?.dispose()

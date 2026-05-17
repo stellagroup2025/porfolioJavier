@@ -161,31 +161,6 @@ export function About() {
                   </div>
                 </div>
 
-                {/* Botones de acción */}
-                <div className="pt-2">
-                  <div className="flex flex-col gap-3">
-                    <Button className="rounded-none gap-2 bg-transparent hover:bg-foreground/5 text-foreground border border-foreground/10 h-12 justify-start px-6">
-                      <Download size={16} />
-                      <span className="ml-2">Descargar CV</span>
-                      <ArrowRight size={14} className="ml-auto opacity-50" />
-                    </Button>
-                    <Button
-                      asChild
-                      variant="outline"
-                      className="rounded-none gap-2 border-foreground/10 text-foreground hover:bg-foreground/5 h-12 justify-start px-6"
-                    >
-                      <a
-                        href="https://es.linkedin.com/in/javier-reyes-dev"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <ExternalLink size={16} />
-                        <span className="ml-2">LinkedIn</span>
-                        <ArrowRight size={14} className="ml-auto opacity-50" />
-                      </a>
-                    </Button>
-                  </div>
-                </div>
               </div>
 
               {/* Contenido dinámico con animaciones fluidas */}
@@ -511,6 +486,30 @@ export function About() {
                 </button>
               ))}
             </nav>
+
+            {/* Botones CV y LinkedIn — bajo la nav, en la columna derecha */}
+            <div className="pt-10 flex flex-col gap-3">
+              <Button className="rounded-none gap-2 bg-transparent hover:bg-foreground/5 text-foreground border border-foreground/10 h-12 justify-start px-6">
+                <Download size={16} />
+                <span className="ml-2">Descargar CV</span>
+                <ArrowRight size={14} className="ml-auto opacity-50" />
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="rounded-none gap-2 border-foreground/10 text-foreground hover:bg-foreground/5 h-12 justify-start px-6"
+              >
+                <a
+                  href="https://es.linkedin.com/in/javier-reyes-dev"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink size={16} />
+                  <span className="ml-2">LinkedIn</span>
+                  <ArrowRight size={14} className="ml-auto opacity-50" />
+                </a>
+              </Button>
+            </div>
           </motion.div>
 
           {/* Navegación móvil - Solo visible en dispositivos pequeños */}
@@ -553,6 +552,29 @@ export function About() {
                 </button>
               ))}
             </nav>
+
+            <div className="pt-4 flex flex-col gap-3">
+              <Button className="rounded-none gap-2 bg-transparent hover:bg-foreground/5 text-foreground border border-foreground/10 h-12 justify-start px-6">
+                <Download size={16} />
+                <span className="ml-2">Descargar CV</span>
+                <ArrowRight size={14} className="ml-auto opacity-50" />
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="rounded-none gap-2 border-foreground/10 text-foreground hover:bg-foreground/5 h-12 justify-start px-6"
+              >
+                <a
+                  href="https://es.linkedin.com/in/javier-reyes-dev"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink size={16} />
+                  <span className="ml-2">LinkedIn</span>
+                  <ArrowRight size={14} className="ml-auto opacity-50" />
+                </a>
+              </Button>
+            </div>
           </motion.div>
         </motion.div>
       </div>

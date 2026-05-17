@@ -644,9 +644,9 @@ export function CosmicBackground() {
       transition={{ duration: 1.5, ease: "easeInOut" }}
       className="absolute inset-0 -z-10"
     >
-      {/* Base background image */}
-      <div className="absolute inset-0 z-0  aaaa">
-        <div className="w-full h-full bg-[radial-gradient(ellipse_at_center,rgba(225,219,214,0.3),rgba(249,246,242,1)_80%)]"></div>
+      {/* Base background */}
+      <div className="absolute inset-0 z-0 bg-background">
+        <div className="w-full h-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.06),transparent_75%)]"></div>
       </div>
 
       {/* Gradient overlay */}
@@ -696,7 +696,7 @@ export function CosmicBackground() {
         />
       </div>
 
-      <div className="absolute inset-0 bg-gradient-to-t from-[#f9f6f2] via-transparent to-[#f9f6f2] pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/80 pointer-events-none" />
     </motion.div>
   );
 }

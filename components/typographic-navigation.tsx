@@ -126,7 +126,7 @@ export function TypographicNavigation({ activeSection, setActiveSection, isTrans
                 variants={itemVariants}
                 style={{
                   right: "8%",
-                  top: `${10 + index * 18}%`,
+                  top: `${18 + index * 17}%`,
                 }}
               >
                 <motion.button

@@ -191,8 +191,10 @@ export function Home() {
             </div>
             <motion.div
               className={cn(
-                "flex flex-wrap gap-x-1.5 gap-y-1.5 sm:gap-x-2 sm:gap-y-2",
-                isMobile ? "justify-center" : ""
+                "grid gap-1.5 sm:gap-2",
+                isMobile
+                  ? "grid-cols-2 max-w-[320px] mx-auto"
+                  : "grid-cols-4 max-w-xl"
               )}
               variants={techContainer}
               initial="hidden"
@@ -249,7 +251,7 @@ function TechTag({ tech, variants }: TechTagProps) {
     <motion.span
       ref={ref}
       variants={variants}
-      className="px-2 py-1 text-[clamp(9px,0.72vw,11px)] font-light tracking-wide border backdrop-blur-sm rounded-sm transition-colors duration-150"
+      className="px-2 py-1 text-center text-[clamp(9px,0.72vw,11px)] font-light tracking-wide border backdrop-blur-sm rounded-sm transition-colors duration-150"
       style={{
         opacity: "var(--tag-strength, 0)",
         color: "rgba(255,255,255, calc(0.4 + 0.6 * var(--tag-strength, 0)))",
