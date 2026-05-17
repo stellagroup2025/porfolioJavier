@@ -127,21 +127,23 @@ export function About() {
   }
 
   return (
-    <div className="w-full h-full flex flex-col items-start justify-start py-10 px-4 sm:px-6 md:px-16 lg:px-24 overflow-y-auto">
+    <div className="w-full h-full flex flex-col items-start justify-start px-5 pt-24 pb-32 sm:px-6 sm:py-10 md:px-16 lg:px-24 overflow-y-auto">
       <AboutBackground />
 
       <div className="w-full max-w-7xl mx-auto z-10" ref={containerRef}>
-        {/* Título principal con animación de derecha a izquierda - Reducido espacio */}
-        <div className="mb-8 md:mb-12 overflow-hidden">
+        {/* Título principal. En mobile bajamos el tamaño y reservamos top
+            padding desde el contenedor (pt-24) para no quedar bajo el
+            header fixed. */}
+        <div className="mb-6 sm:mb-8 md:mb-12 overflow-hidden">
           <motion.h1
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-foreground"
+            className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-foreground"
             variants={titleVariants}
             initial="hidden"
             animate="visible"
           >
             Sobre mí
           </motion.h1>
-          <motion.div className="h-px bg-foreground/20 mt-4" variants={lineAnimation} initial="hidden" animate="visible" />
+          <motion.div className="h-px bg-foreground/20 mt-3 sm:mt-4" variants={lineAnimation} initial="hidden" animate="visible" />
         </div>
 
         {/* Contenido principal con diseño arquitectónico */}
@@ -150,21 +152,27 @@ export function About() {
           <motion.div className="pr-0 lg:pr-72" variants={fadeInUp} custom={0}>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               <div className="lg:col-span-5">
-                <div className="relative aspect-[3/4] overflow-hidden mb-6">
+                {/* En mobile la imagen es más recortada (4:5) para no
+                    dominar el viewport y dejar espacio al texto. Desktop
+                    mantiene 3:4 original. */}
+                <div className="relative aspect-[4/5] sm:aspect-[3/4] overflow-hidden mb-6">
                   <img src="/images/javier-profile.png" alt="Javier Reyes" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
 
-                  {/* Nombre superpuesto en la imagen */}
-                  <div className="absolute bottom-0 left-0 p-8 w-full">
-                    <h2 className={cn("text-4xl font-light mb-1 tracking-wide", playfair.className)}>Javier Reyes</h2>
-                    <p className="text-foreground/70 text-lg font-light tracking-widest uppercase">Full Stack Developer</p>
+                  {/* Nombre superpuesto en la imagen — padding menor en
+                      mobile, texto un grado más chico para no apretarse. */}
+                  <div className="absolute bottom-0 left-0 p-5 sm:p-8 w-full">
+                    <h2 className={cn("text-2xl sm:text-4xl font-light mb-1 tracking-wide", playfair.className)}>Javier Reyes</h2>
+                    <p className="text-foreground/70 text-sm sm:text-lg font-light tracking-widest uppercase">Full Stack Developer</p>
                   </div>
                 </div>
 
               </div>
 
-              {/* Contenido dinámico con animaciones fluidas */}
-              <div className="lg:col-span-7 min-h-[500px]">
+              {/* Contenido dinámico. min-h solo en desktop para que el
+                  contenido más corto no colapse la columna; en mobile no
+                  hace falta y solo añadía aire muerto. */}
+              <div className="lg:col-span-7 lg:min-h-[500px]">
                 <AnimatePresence mode="wait">
                   {/* Sección de biografía */}
                   {activeSection === "biography" && (

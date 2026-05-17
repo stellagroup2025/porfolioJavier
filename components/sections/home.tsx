@@ -160,8 +160,9 @@ export function Home() {
           </h2>
         </motion.div>
 
-        {/* Tecnologías */}
-        <motion.div className="mb-4 sm:mb-6" variants={item}>
+        {/* Tecnologías — solo desktop (lg+). En mobile/tablet la lista
+            empujaba todo el contenido hacia arriba. Tailwind lg: = 1024px. */}
+        <motion.div className="hidden lg:block mb-4 sm:mb-6" variants={item}>
           <div className="space-y-3">
             <div
               className={cn(
@@ -226,6 +227,12 @@ function TechTag({ tech, variants }: TechTagProps) {
   const ref = useRef<HTMLSpanElement>(null)
 
   useEffect(() => {
+    // Efecto de iluminación solo en desktop. En mobile/tablet el grid de
+    // tech ni siquiera está visible (hidden lg:block) — gateamos también
+    // este RAF para no tirar de batería de balde.
+    const isDesktop = window.matchMedia("(min-width: 1024px)").matches
+    if (!isDesktop) return
+
     let rafId = 0
     const tick = () => {
       const el = ref.current
