@@ -168,9 +168,6 @@ export function Contact() {
             />
           ))}
         </div>
-        {/* Subtle light effects */}
-        <div className="absolute top-[20%] right-[20%] w-[200px] h-[200px] rounded-full bg-[#e1dbd6]/[0.3] blur-3xl" />
-        <div className="absolute bottom-[10%] left-[10%] w-[150px] h-[150px] rounded-full bg-[#d1d1d1]/[0.3] blur-3xl" />
       </div>
 
       {/* Título animado: en mobile lo contenemos al viewport (left-4 right-4)

@@ -2,9 +2,19 @@
 
 import { AnimatePresence, motion } from "framer-motion"
 import { Logo } from "@/components/logo"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 export type RevealerPhase = "idle" | "covering" | "covered" | "uncovering"
 export type RevealerDirection = "forward" | "backward"
+
+// Duraciones (en segundos) que la implementación mobile usa internamente.
+// Se exportan para que el orquestador (page.tsx) pueda esperar esos mismos
+// tiempos en handleSectionChange y no se quede esperando de balde.
+export const MOBILE_REVEALER_DURATIONS = {
+  covering: 0.32,
+  covered: 0.22,
+  uncovering: 0.32,
+} as const
 
 const LEFT_PATHS = [
   "M 0,0 L 0,0 C 0,0 0,0 0,5 C 0,10 0,10 0,10 L 0,10 Z",
@@ -86,6 +96,11 @@ export function RevealerTransition({
   phase: RevealerPhase
   direction?: RevealerDirection
 }) {
+  const isMobile = useIsMobile()
+  // En mobile usamos un componente diferente: panel sólido con transform,
+  // 100% GPU compositor. El SVG path-morph del desktop es CPU-heavy.
+  if (isMobile) return <MobileRevealer phase={phase} direction={direction} />
+
   const isVisible = phase !== "idle"
   const plan = buildPlan(phase, direction)
 
@@ -180,6 +195,98 @@ export function RevealerTransition({
                 ease: [0.65, 0, 0.35, 1],
               }}
             />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+/**
+ * Versión mobile: panel sólido con gradiente sutil que se desliza vertical
+ * via `transform: translateY`. Todo el render es GPU (compositor), sin
+ * SVG path-morph ni layout changes. Mantiene el "flash" de logo central
+ * para conservar el lenguaje de marca pero más corto.
+ *
+ * - covering: panel entra (desde top en forward, desde bottom en backward)
+ * - covered: hold + logo flash
+ * - uncovering: panel sale por el lado opuesto (efecto "pasa de largo")
+ */
+function MobileRevealer({
+  phase,
+  direction,
+}: {
+  phase: RevealerPhase
+  direction: RevealerDirection
+}) {
+  const isVisible = phase !== "idle"
+
+  // Direction:
+  //   forward  → entra desde TOP (-100%), sale por BOTTOM (+100%)
+  //   backward → entra desde BOTTOM (+100%), sale por TOP (-100%)
+  const enterFrom = direction === "forward" ? "-100%" : "100%"
+  const exitTo = direction === "forward" ? "100%" : "-100%"
+
+  let targetY: string
+  let duration: number
+  if (phase === "covering") {
+    targetY = "0%"
+    duration = MOBILE_REVEALER_DURATIONS.covering
+  } else if (phase === "covered") {
+    targetY = "0%"
+    duration = 0
+  } else if (phase === "uncovering") {
+    targetY = exitTo
+    duration = MOBILE_REVEALER_DURATIONS.uncovering
+  } else {
+    targetY = enterFrom
+    duration = 0
+  }
+
+  return (
+    <div
+      aria-hidden
+      className="fixed inset-0 z-[900] pointer-events-none"
+      style={{ visibility: isVisible ? "visible" : "hidden" }}
+    >
+      <motion.div
+        className="absolute inset-0"
+        initial={{ y: enterFrom }}
+        animate={{ y: targetY }}
+        transition={{ duration, ease: EASE }}
+        style={{
+          // Gradiente sutil para que el panel no sea un bloque plano y se
+          // sienta "premium" en lugar de un fade genérico.
+          background:
+            "linear-gradient(180deg, #0a0a0c 0%, #14141a 50%, #0a0a0c 100%)",
+          willChange: "transform",
+        }}
+      />
+
+      <AnimatePresence>
+        {phase === "covered" && (
+          <motion.div
+            key="mobile-flash"
+            className="absolute inset-0 flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.08 }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{
+                opacity: [0, 1, 1, 0],
+                scale: [0.92, 1, 1, 0.95],
+              }}
+              transition={{
+                duration: MOBILE_REVEALER_DURATIONS.covered,
+                times: [0, 0.35, 0.7, 1],
+                ease: "easeInOut",
+              }}
+            >
+              <Logo interactive={false} className="w-16 h-16" />
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
