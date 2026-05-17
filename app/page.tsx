@@ -133,7 +133,7 @@ export default function Portfolio() {
       : () => handleSectionChange("home"); // En cualquier otro caso, volver a home
 
   return (
-    <div className="min-h-screen overflow-hidden text-foreground">
+    <div className="h-screen overflow-hidden text-foreground">
       <header className="fixed top-0 left-0 w-full z-50 px-4 sm:px-6 py-4 pointer-events-none">
         {/* Capa de glass: solo en mobile, se desvanece en función del
             scroll. Fuera de mobile / sin scroll, opacity 0 → el header
