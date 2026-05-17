@@ -204,6 +204,7 @@ function ElegantShape({
       className={cn("absolute", className)}
     >
       <motion.div
+        ref={surfaceRef}
         animate={{
           y: [0, 15, 0],
         }}
@@ -215,11 +216,24 @@ function ElegantShape({
         style={{
           width: scaledWidth,
           height: scaledHeight,
+          // Para triángulos el halo cremoso vive AQUÍ — en el wrapper SIN
+          // clip-path. Si lo metemos en el surface (con clip-path) la propia
+          // clip-path recorta también el drop-shadow → invisible. Aquí el
+          // drop-shadow lee el alpha del hijo (surface ya clip-pathed) y
+          // dibuja el halo fuera del triángulo. Stack x2 compensa la
+          // atenuación de la semi-transparencia.
+          // Las CSS vars --light-x/y/strength se setean en este motion.div
+          // vía surfaceRef (movido aquí desde el div interior) — así el
+          // filter de este nivel las puede leer Y el div interior las
+          // hereda por defecto, sin duplicar nada.
+          filter:
+            shape === "triangle"
+              ? "drop-shadow(0 0 calc(70px * var(--light-strength, 0)) rgba(255, 245, 220, calc(0.85 * var(--light-strength, 0)))) drop-shadow(0 0 calc(40px * var(--light-strength, 0)) rgba(255, 245, 220, calc(0.75 * var(--light-strength, 0)))) drop-shadow(0 0 calc(20px * var(--light-strength, 0)) rgba(255, 245, 220, calc(0.65 * var(--light-strength, 0)))) drop-shadow(0 8px 24px rgba(0,0,0,0.08))"
+              : undefined,
         }}
         className="relative"
       >
         <div
-          ref={surfaceRef}
           className={cn(
             "absolute inset-0 overflow-hidden",
             shape === "triangle" ? "triangle-shape" : "rounded-sm",
@@ -232,12 +246,21 @@ function ElegantShape({
               shape === "triangle"
                 ? "polygon(50% 0%, 0% 100%, 100% 100%)"
                 : undefined,
-            // Glow externo que cambia con la proximidad
+            // Para rectángulos: box-shadow regular alrededor del border-box.
+            // Para triángulos: box-shadow se RECORTA por clip-path, así que
+            // pasamos esas sombras al filter chain con drop-shadow stackeado
+            // x2 (compensa que drop-shadow se atenúa con el alpha del
+            // shape, que es semi-transparente).
             boxShadow:
-              "0 0 calc(60px * var(--light-strength, 0)) calc(8px * var(--light-strength, 0)) rgba(255, 245, 220, calc(0.55 * var(--light-strength, 0))), 0 8px 32px 0 rgba(0,0,0,0.05)",
-            // Brillo global proporcional al cursor
+              shape === "triangle"
+                ? "none"
+                : "0 0 calc(60px * var(--light-strength, 0)) calc(8px * var(--light-strength, 0)) rgba(255, 245, 220, calc(0.55 * var(--light-strength, 0))), 0 8px 32px 0 rgba(0,0,0,0.05)",
+            // Brillo global proporcional al cursor + (solo en triángulos)
+            // drop-shadow stackeado para compensar el clipping del box-shadow.
             filter:
-              "brightness(calc(1 + 1.4 * var(--light-strength, 0))) saturate(calc(1 + 0.3 * var(--light-strength, 0)))",
+              shape === "triangle"
+                ? "brightness(calc(1 + 1.4 * var(--light-strength, 0))) saturate(calc(1 + 0.3 * var(--light-strength, 0))) drop-shadow(0 0 calc(70px * var(--light-strength, 0)) rgba(255, 245, 220, calc(0.65 * var(--light-strength, 0)))) drop-shadow(0 0 calc(70px * var(--light-strength, 0)) rgba(255, 245, 220, calc(0.65 * var(--light-strength, 0)))) drop-shadow(0 8px 32px rgba(0,0,0,0.08))"
+                : "brightness(calc(1 + 1.4 * var(--light-strength, 0))) saturate(calc(1 + 0.3 * var(--light-strength, 0)))",
             // Highlight radial dentro del shape, en la zona donde "rebota" la luz
             backgroundImage:
               "radial-gradient(circle at var(--light-x, 50%) var(--light-y, 50%), rgba(255, 248, 230, calc(0.85 * var(--light-strength, 0))) 0%, rgba(255, 248, 230, calc(0.25 * var(--light-strength, 0))) 30%, transparent 70%)",
@@ -572,10 +595,18 @@ export function GeometricBackground() {
 
   useEffect(() => {
     let rafId = 0;
-    let targetX = 0.5;
-    let targetY = 0.5;
-    let currentX = 0.5;
-    let currentY = 0.5;
+    // Inicializamos desde el ref global, no desde 0.5 hardcoded. Razón:
+    // mousePositionRef es un singleton a nivel de módulo que sobrevive a
+    // las navegaciones SPA. Si el usuario ya había movido el cursor en
+    // alguna otra página y vuelve a home, el ref ya tiene la posición real
+    // y hasMoved=true — arrancar desde 0.5 forzaría al primer tick a
+    // sobreescribir el ref con (0.5, 0.5), causando que las figuras
+    // cercanas al centro se ilumine. Inicializando desde el ref, el tick
+    // no cambia nada en su primer frame.
+    let targetX = mousePositionRef.current.x;
+    let targetY = mousePositionRef.current.y;
+    let currentX = targetX;
+    let currentY = targetY;
 
     const handlePointerMove = (event: PointerEvent) => {
       targetX = event.clientX / window.innerWidth;

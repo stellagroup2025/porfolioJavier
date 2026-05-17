@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 import { Playfair_Display } from "next/font/google"
 import { useTranslation } from "@/lib/i18n"
@@ -22,6 +22,15 @@ interface NavigationProps {
 export function TypographicNavigation({ activeSection, setActiveSection, isTransitioning, isMobile }: NavigationProps) {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
   const { t } = useTranslation()
+
+  // Reset del hovered al cambiar de sección. Sin esto, al hacer click en
+  // p.ej. "Sobre mí" se setea hoveredItem="about", luego el componente se
+  // oculta (return null para non-home), y al volver a home conserva el
+  // hovered → la entrada aparece marcada como si el cursor estuviera
+  // encima aunque no lo esté.
+  useEffect(() => {
+    setHoveredItem(null)
+  }, [activeSection])
 
   const navItems = [
     { id: "work", label: t("nav.work") },
