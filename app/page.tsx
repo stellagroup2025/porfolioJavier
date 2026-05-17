@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
 import { Home } from "@/components/sections/home";
 import { About } from "@/components/sections/about";
 import { Work } from "@/components/sections/work";
@@ -29,8 +30,30 @@ export default function Portfolio() {
   const [revealerPhase, setRevealerPhase] = useState<RevealerPhase>("idle");
   const [revealerDirection, setRevealerDirection] =
     useState<RevealerDirection>("forward");
+  // Scroll del contenido activo (solo se usa en mobile para activar el
+  // glass effect del header). Como cada sección tiene su propio
+  // overflow-y-auto interno, capturamos cualquier scroll en fase capture.
+  const [isScrolled, setIsScrolled] = useState(false);
   const isMobile = useIsMobile();
   const { withTransition } = useTransition();
+
+  useEffect(() => {
+    if (!isMobile) return;
+    const onScroll = (event: Event) => {
+      const target = event.target as HTMLElement | null;
+      if (target && typeof target.scrollTop === "number") {
+        setIsScrolled(target.scrollTop > 8);
+      }
+    };
+    window.addEventListener("scroll", onScroll, { capture: true, passive: true });
+    return () =>
+      window.removeEventListener("scroll", onScroll, { capture: true } as EventListenerOptions);
+  }, [isMobile]);
+
+  // Reset al cambiar de sección — el container nuevo arranca a scrollTop 0.
+  useEffect(() => {
+    setIsScrolled(false);
+  }, [activeSection]);
 
   const handleSectionChange = async (section: string) => {
     if (activeSection === section || isTransitioning) return;
@@ -100,15 +123,76 @@ export default function Portfolio() {
   return (
     <div className="min-h-screen overflow-hidden text-foreground">
       <header className="fixed top-0 left-0 w-full z-50 px-4 sm:px-6 py-4 pointer-events-none">
-        <div className="flex items-center justify-between">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="pointer-events-auto"
-          >
-            <Logo onClick={() => handleSectionChange("home")} />
-          </motion.div>
+        {/* Capa de glass: solo en mobile, se desvanece en función del
+            scroll. Fuera de mobile / sin scroll, opacity 0 → el header
+            es invisible como antes (solo se ven sus hijos interactivos). */}
+        {isMobile && (
+          <div
+            aria-hidden
+            className={`pointer-events-none absolute inset-0 backdrop-blur-2xl bg-background/70 border-b border-foreground/10 transition-opacity duration-300 ${
+              isScrolled ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        )}
+        <div className="relative flex items-center justify-between">
+          {/* Slot izquierdo: back button cuando estamos en mobile y hay
+              shouldShowSectionLink. El logo se traslada al centro abajo. */}
+          <div className="pointer-events-auto">
+            {isMobile && shouldShowSectionLink ? (
+              <motion.button
+                key="back-button"
+                initial={{ opacity: 0, scale: 0.7, x: -8 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                exit={{ opacity: 0, scale: 0.7, x: -8 }}
+                transition={{ duration: 0.4, ease: [0.25, 0.4, 0.25, 1] }}
+                onClick={() => !isTransitioning && sectionToNavigate()}
+                disabled={isTransitioning}
+                className="flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-foreground/10 disabled:opacity-50"
+                aria-label="Volver"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </motion.button>
+            ) : (
+              <motion.div
+                key="logo-left"
+                layoutId="header-logo"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Logo onClick={() => handleSectionChange("home")} />
+              </motion.div>
+            )}
+          </div>
+
+          {/* Slot centro: logo cuando mobile + section page. layoutId
+              comparte identidad con el logo-left, así framer-motion anima
+              la transición de posición (left → center) suavemente.
+              Usamos flex centering (no translate) porque framer-motion
+              sobrescribe el `transform` durante la animación layoutId y
+              los `-translate-*` de Tailwind quedan ignorados → el logo
+              caía debajo del back button. Con `absolute inset-0 flex
+              items-center justify-center` el centrado se hace por
+              layout, no por transform, y se respeta. */}
+          {isMobile && shouldShowSectionLink && (
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+              <motion.div
+                layoutId="header-logo"
+                className="pointer-events-auto"
+                // El logo png tiene un poco de aire en la parte inferior,
+                // así que el centro visual queda más arriba del centro
+                // geométrico → bajamos 4px para alinear ópticamente con
+                // el back button y el toggle de idioma.
+                style={{ marginTop: 4 }}
+                transition={{ type: "spring", stiffness: 220, damping: 28 }}
+              >
+                <Logo
+                  onClick={() => handleSectionChange("home")}
+                  className="w-14 h-14"
+                />
+              </motion.div>
+            </div>
+          )}
 
           <div className="flex items-center gap-3 sm:gap-4 pointer-events-auto">
             <LanguageToggle />
@@ -125,7 +209,7 @@ export default function Portfolio() {
           </PageTransition>
         </AnimatePresence>
 
-        {shouldShowSectionLink && (
+        {shouldShowSectionLink && !isMobile && (
           <SectionLink
             onClick={sectionToNavigate}
             isTransitioning={isTransitioning}

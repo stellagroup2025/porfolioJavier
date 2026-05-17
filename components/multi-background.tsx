@@ -147,6 +147,14 @@ function ElegantShape({
   const scaledHeight = height * scale;
 
   useEffect(() => {
+    // Los efectos de luz son solo para desktop. En mobile/tablet no hay
+    // cursor, así que el halo y la capa etched dejan de tener sentido y
+    // pueden distraer del contenido. Si no es desktop, no arrancamos el
+    // RAF — todas las variables --light-* quedan undefined y la calc de
+    // las propiedades reactivas evalúa a 0/identidad (halo invisible).
+    const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
+    if (!isDesktop) return;
+
     let rafId = 0;
     const tick = () => {
       const el = surfaceRef.current;
@@ -160,11 +168,7 @@ function ElegantShape({
         const reach = 460;
         const proximity = Math.max(0, 1 - dist / reach); // 0..1
         // Hasta que el usuario mueva el cursor por primera vez, todas las
-        // figuras quedan "apagadas". Antes solo se notaba un halo cremoso
-        // muy sutil en las figuras cercanas al centro; con la capa etched
-        // ese halo inicial empezó a mostrar contenido (líneas del wireframe)
-        // y se percibía como "el halo aparece al cargar". Gateamos por
-        // hasMoved para conservar la intención original.
+        // figuras quedan "apagadas".
         const eased = mousePositionRef.current.hasMoved
           ? proximity * proximity
           : 0;
