@@ -103,6 +103,24 @@ function useViewportScale() {
   return scale;
 }
 
+// Fragmento "tallado" en la figura. Cada figura puede mostrar una imagen
+// distinta (planos arquitectónicos, diagramas software, ...) que se revela
+// solo donde la luz del cursor incide — es invisible por defecto. La idea
+// es que cada figura sea una pieza de identidad: arquitecto, diseñador,
+// desarrollador, etc.
+type EtchedFragment = {
+  /** URL de la imagen a tallar. Default "/identity/blueprint.jpg". */
+  url?: string;
+  /** background-position X (ej: "20%", "-120px"). */
+  x: string;
+  /** background-position Y. */
+  y: string;
+  /** background-size (default "260%" → zoom en una zona pequeña). */
+  size?: string;
+  /** Modula la intensidad máxima de la talla (default 1.0). 0..1. */
+  strength?: number;
+};
+
 // Componente para formas geométricas elegantes
 function ElegantShape({
   className,
@@ -112,6 +130,7 @@ function ElegantShape({
   rotate = 0,
   gradient = "from-foreground/[0.08]",
   shape = "rectangle",
+  etched,
 }: {
   className?: string;
   delay?: number;
@@ -120,6 +139,7 @@ function ElegantShape({
   rotate?: number;
   gradient?: string;
   shape?: "rectangle" | "triangle";
+  etched?: EtchedFragment;
 }) {
   const surfaceRef = useRef<HTMLDivElement>(null);
   const scale = useViewportScale();
@@ -193,7 +213,7 @@ function ElegantShape({
         <div
           ref={surfaceRef}
           className={cn(
-            "absolute inset-0",
+            "absolute inset-0 overflow-hidden",
             shape === "triangle" ? "triangle-shape" : "rounded-sm",
             "bg-gradient-to-r to-transparent",
             gradient,
@@ -215,7 +235,56 @@ function ElegantShape({
               "radial-gradient(circle at var(--light-x, 50%) var(--light-y, 50%), rgba(255, 248, 230, calc(0.85 * var(--light-strength, 0))) 0%, rgba(255, 248, 230, calc(0.25 * var(--light-strength, 0))) 30%, transparent 70%)",
             transition: "filter 120ms linear",
           }}
-        />
+        >
+          {etched && (
+            <>
+              {/* Capa 1 — sombra dentro del surco. La imagen original tiene
+                  líneas finas tipo lápiz que sin amplificar quedan invisibles
+                  tras multiply. contrast(3) las empuja a casi negro y
+                  brightness(0.7) baja el fondo blanco a gris medio para que
+                  el multiply tenga rango (blanco puro × algo = identidad).
+                  color-burn da un darkening más agresivo que multiply. */}
+              <div
+                aria-hidden
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  backgroundImage: `url("${etched.url ?? "/identity/blueprint.jpg"}")`,
+                  backgroundSize: etched.size ?? "100% auto",
+                  backgroundPosition: `${etched.x} ${etched.y}`,
+                  backgroundRepeat: "no-repeat",
+                  // Filter fuerte: brightness 0.5 baja todo bajo el midpoint
+                  // primero, contrast 2.5 lo amplía después → líneas finas
+                  // pasan a casi negro, paper queda gris medio. Combinado
+                  // con multiply oscurecen visiblemente la superficie.
+                  filter: "grayscale(1) brightness(0.5) contrast(2.5)",
+                  mixBlendMode: "multiply",
+                  // Mask radius pequeño (45%): la zona etched queda
+                  // contenida, no agranda el halo cremoso.
+                  maskImage:
+                    "radial-gradient(circle at var(--light-x, 50%) var(--light-y, 50%), black 0%, black 20%, transparent 45%)",
+                  WebkitMaskImage:
+                    "radial-gradient(circle at var(--light-x, 50%) var(--light-y, 50%), black 0%, black 20%, transparent 45%)",
+                  // Opacity con saturación rápida: min(cap, strength*3).
+                  // En cuanto --light-strength llega a ~0.18 la opacidad ya
+                  // está en su cap (0.55). Esto significa que las líneas
+                  // están visibles desde que el cursor está MODERADAMENTE
+                  // cerca, no hace falta luz halo al 100% — y como el cap
+                  // es 0.55 (no 1.0), no añaden ni el contraste exagerado
+                  // de antes ni un brillo que extienda el halo.
+                  opacity: `min(${(etched.strength ?? 1.0) * 0.55}, calc(var(--light-strength, 0) * 3))`,
+                  transition: "opacity 120ms linear",
+                }}
+              />
+              {/* La segunda capa (highlight con screen blend) se eliminó
+                  intencionalmente: con etched en las 10 figuras añadía un
+                  brillo perceptible al halo del cursor — el padre tiene
+                  filter: brightness escalado con --light-strength que cascada
+                  al hijo, y el screen blend de líneas blancas reforzaba eso.
+                  Ahora solo el surco oscuro (multiply) — sin efecto 3D lip
+                  pero el halo de luz queda idéntico a las figuras vacías. */}
+            </>
+          )}
+        </div>
       </motion.div>
     </motion.div>
   );
@@ -549,6 +618,12 @@ export function GeometricBackground() {
           rotate={12}
           gradient="from-[#d1d1d1]/[0.25]"
           className="left-[-10%] md:left-[-5%] top-[15%] md:top-[20%]"
+          // Único fragmento "tallado": size 100% 100% estira la imagen al
+          // espacio EXACTO del rect (600×140). El jpg (311×90, ratio 3.46:1)
+          // está cerca del aspect del rect (4.3:1) — la distorsión vertical
+          // es leve (~24% squash) y el contenido sigue siendo reconocible.
+          // Imagen ocupa toda la figura, sin huecos.
+          etched={{ x: "50%", y: "50%", size: "100% 100%", strength: 1.0 }}
         />
         <ElegantShape
           delay={0.5}
@@ -557,6 +632,17 @@ export function GeometricBackground() {
           rotate={-15}
           gradient="from-[#e1dbd6]/[0.25]"
           className="right-[-5%] md:right-[0%] top-[70%] md:top-[75%]"
+          // Segundo fragmento — diagrama de arquitectura software (presentación
+          // / aplicación / datos). Imagen 335×62 (ratio 5.4:1), rect 500×120
+          // (ratio 4.17:1). size 100% 100% estira levemente vertical (~23%
+          // squash) pero el diagrama sigue siendo perfectamente legible.
+          etched={{
+            url: "/identity/software.png",
+            x: "50%",
+            y: "50%",
+            size: "100% 100%",
+            strength: 1.0,
+          }}
         />
         <ElegantShape
           delay={0.4}
@@ -565,6 +651,17 @@ export function GeometricBackground() {
           rotate={-8}
           gradient="from-[#e2e2e2]/[0.25]"
           className="left-[5%] md:left-[10%] bottom-[5%] md:bottom-[10%]"
+          // Tercer fragmento — iconografía de diseño (lápices, vector pen,
+          // paper plane, ...). Imagen 1200×271 (ratio 4.43:1) sobre rect
+          // 300×80 (ratio 3.75:1). size 100% 100% causa un squash horizontal
+          // del ~18% pero los iconos siguen siendo reconocibles.
+          etched={{
+            url: "/identity/design.png",
+            x: "50%",
+            y: "50%",
+            size: "100% 100%",
+            strength: 1.0,
+          }}
         />
         <ElegantShape
           delay={0.6}
@@ -573,6 +670,13 @@ export function GeometricBackground() {
           rotate={20}
           gradient="from-[#f9f6f2]/[0.25]"
           className="right-[15%] md:right-[20%] top-[10%] md:top-[15%]"
+          etched={{
+            url: "/identity/marketing.jpg",
+            x: "50%",
+            y: "50%",
+            size: "100% 100%",
+            strength: 1.0,
+          }}
         />
         <ElegantShape
           delay={0.7}
@@ -581,6 +685,13 @@ export function GeometricBackground() {
           rotate={-25}
           gradient="from-[#d1d1d1]/[0.25]"
           className="left-[20%] md:left-[25%] top-[5%] md:top-[10%]"
+          etched={{
+            url: "/identity/software.png",
+            x: "50%",
+            y: "50%",
+            size: "100% 100%",
+            strength: 1.0,
+          }}
         />
 
         {/* Formas adicionales */}
@@ -592,6 +703,13 @@ export function GeometricBackground() {
           gradient="from-[#e1dbd6]/[0.2]"
           shape="triangle"
           className="right-[30%] top-[40%]"
+          etched={{
+            url: "/identity/blueprint.jpg",
+            x: "50%",
+            y: "50%",
+            size: "100% 100%",
+            strength: 1.0,
+          }}
         />
         <ElegantShape
           delay={0.9}
@@ -600,6 +718,13 @@ export function GeometricBackground() {
           rotate={-30}
           gradient="from-[#e2e2e2]/[0.2]"
           className="left-[40%] top-[60%]"
+          etched={{
+            url: "/identity/software.png",
+            x: "50%",
+            y: "50%",
+            size: "100% 100%",
+            strength: 1.0,
+          }}
         />
         <ElegantShape
           delay={1.0}
@@ -609,6 +734,13 @@ export function GeometricBackground() {
           gradient="from-[#d1d1d1]/[0.2]"
           shape="triangle"
           className="left-[60%] bottom-[30%]"
+          etched={{
+            url: "/identity/design.png",
+            x: "50%",
+            y: "50%",
+            size: "100% 100%",
+            strength: 1.0,
+          }}
         />
         <ElegantShape
           delay={1.1}
@@ -617,6 +749,17 @@ export function GeometricBackground() {
           rotate={-10}
           gradient="from-[#f9f6f2]/[0.2]"
           className="right-[40%] bottom-[20%]"
+          // Cuarto fragmento — iconografía marketing (megáfono, dispositivos,
+          // word "MARKETING"). Imagen 1400×274 (ratio 5.11:1) sobre rect
+          // 320×90 (ratio 3.55:1). size 100% 100% squashea horizontalmente
+          // ~30% pero los iconos y la palabra siguen siendo legibles.
+          etched={{
+            url: "/identity/marketing.jpg",
+            x: "50%",
+            y: "50%",
+            size: "100% 100%",
+            strength: 1.0,
+          }}
         />
         <ElegantShape
           delay={1.2}
@@ -626,6 +769,13 @@ export function GeometricBackground() {
           gradient="from-[#e1dbd6]/[0.2]"
           shape="triangle"
           className="left-[30%] top-[25%]"
+          etched={{
+            url: "/identity/design.png",
+            x: "50%",
+            y: "50%",
+            size: "100% 100%",
+            strength: 1.0,
+          }}
         />
       </div>
 
