@@ -1,135 +1,11 @@
 "use client"
 
 import { AnimatePresence, motion } from "framer-motion"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { X } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
-
-type AnimationDemo = {
-  id: string
-  render: () => JSX.Element
-}
-
-const demos: Record<string, AnimationDemo> = {
-  fade: {
-    id: "fade",
-    render: () => (
-      <motion.div
-        className="dg-demo-block"
-        style={{ backgroundColor: "#1a1a1a" }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.4, repeat: Infinity, repeatType: "reverse" }}
-      />
-    ),
-  },
-  scale: {
-    id: "scale",
-    render: () => (
-      <motion.div
-        className="dg-demo-block dg-demo-block--round"
-        style={{ backgroundColor: "#1a1a1a" }}
-        animate={{ scale: [1, 1.25, 1] }}
-        transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-      />
-    ),
-  },
-  rotate: {
-    id: "rotate",
-    render: () => (
-      <motion.div
-        className="dg-demo-block"
-        style={{ backgroundColor: "#1a1a1a", borderRadius: "30%" }}
-        animate={{ rotate: 360 }}
-        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-      />
-    ),
-  },
-  slide: {
-    id: "slide",
-    render: () => (
-      <motion.div
-        className="dg-demo-block dg-demo-block--sm"
-        style={{ backgroundColor: "#1a1a1a", borderRadius: "1rem" }}
-        animate={{ x: [-100, 100, -100] }}
-        transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-      />
-    ),
-  },
-  morph: {
-    id: "morph",
-    render: () => (
-      <motion.div
-        className="dg-demo-block"
-        style={{ backgroundColor: "#1a1a1a" }}
-        animate={{ borderRadius: ["20%", "50%", "20%"] }}
-        transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-      />
-    ),
-  },
-  spring: {
-    id: "spring",
-    render: () => (
-      <motion.div
-        className="dg-demo-block"
-        style={{ backgroundColor: "#1a1a1a", borderRadius: "1.25rem", cursor: "pointer" }}
-        whileHover={{ scale: 1.25, rotate: 12 }}
-        whileTap={{ scale: 0.9 }}
-        transition={{ type: "spring", stiffness: 300, damping: 12 }}
-      />
-    ),
-  },
-  stagger: {
-    id: "stagger",
-    render: () => (
-      <motion.div
-        style={{ display: "flex", gap: "0.5rem" }}
-        initial="hidden"
-        animate="visible"
-        variants={{
-          visible: { transition: { staggerChildren: 0.15, repeat: Infinity, repeatDelay: 0.8 } },
-        }}
-      >
-        {[0, 1, 2, 3, 4].map((i) => (
-          <motion.span
-            key={i}
-            style={{
-              width: 18,
-              height: 100,
-              backgroundColor: "#1a1a1a",
-              borderRadius: 999,
-              display: "block",
-            }}
-            variants={{
-              hidden: { scaleY: 0.2, opacity: 0.4 },
-              visible: { scaleY: 1, opacity: 1 },
-            }}
-            transition={{ duration: 0.4, repeat: Infinity, repeatType: "reverse" }}
-          />
-        ))}
-      </motion.div>
-    ),
-  },
-  path: {
-    id: "path",
-    render: () => (
-      <svg width="160" height="160" viewBox="0 0 160 160" style={{ overflow: "visible" }}>
-        <motion.circle
-          cx="80"
-          cy="80"
-          r="62"
-          fill="none"
-          stroke="#1a1a1a"
-          strokeWidth="6"
-          strokeLinecap="round"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 2, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
-        />
-      </svg>
-    ),
-  },
-}
+import { animationRegistry, type AnimationHandle } from "./animations"
+import { galleryPlaneData } from "./galleryData"
 
 type Props = {
   planeId: string | null
@@ -138,6 +14,7 @@ type Props = {
 
 export function AnimationModal({ planeId, onClose }: Props) {
   const { t } = useTranslation()
+  const stageRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     if (!planeId) return
@@ -148,11 +25,85 @@ export function AnimationModal({ planeId, onClose }: Props) {
     return () => window.removeEventListener("keydown", onKeyDown)
   }, [planeId, onClose])
 
-  const demo = planeId ? demos[planeId] : null
+  // Montaje / desmontaje del canvas WebGL en interactive=true cuando se abre
+  // el modal sobre una card que tiene animationId.
+  useEffect(() => {
+    if (!planeId) return
+    const stage = stageRef.current
+    if (!stage) return
+
+    const planeData = galleryPlaneData.find((p) => p.id === planeId)
+    const animationId = planeData?.animationId
+    if (!animationId) return // fade/path o cualquier card sin animación WebGL
+
+    const factory = animationRegistry[animationId]
+    if (!factory) return
+
+    // Tamaño del stage en CSS px. El factory aplica setPixelRatio internamente,
+    // así que NO multiplicamos nosotros por DPR (sería doble escalado).
+    // Pero garantizamos un buffer mínimo de 1024 en la dimensión menor para
+    // igualar la resolución que tiene la card en la gallery: si el stage es
+    // pequeño, escalamos las dims que pasamos al factory manteniendo aspect.
+    // Sin esto los puntos/líneas se ven más gruesos relativos al canvas.
+    const rect = stage.getBoundingClientRect()
+    const cssW = Math.max(1, Math.floor(rect.width))
+    const cssH = Math.max(1, Math.floor(rect.height))
+    const minStageDim = Math.min(cssW, cssH)
+    const upscale = Math.max(1, 1024 / minStageDim)
+    const bufW = Math.round(cssW * upscale)
+    const bufH = Math.round(cssH * upscale)
+    const handle: AnimationHandle = factory(bufW, bufH, {
+      interactive: true,
+    })
+
+    // Canvas: pintamos en buffer de cssW*dpr × cssH*dpr y lo escalamos a
+    // cssW × cssH vía CSS.
+    handle.canvas.style.width = `${cssW}px`
+    handle.canvas.style.height = `${cssH}px`
+    handle.canvas.style.display = "block"
+    handle.canvas.style.maxWidth = "100%"
+    handle.canvas.style.maxHeight = "100%"
+    stage.appendChild(handle.canvas)
+
+    // Mouse → (x, y) normalizados [0, 1] relativos al canvas.
+    const onPointerMove = (event: PointerEvent) => {
+      if (!handle.setMouse) return
+      const r = handle.canvas.getBoundingClientRect()
+      const x = (event.clientX - r.left) / r.width
+      const y = (event.clientY - r.top) / r.height
+      handle.setMouse(Math.max(0, Math.min(1, x)), Math.max(0, Math.min(1, y)))
+    }
+    handle.canvas.addEventListener("pointermove", onPointerMove)
+    // Importante: NO inicializamos setMouse aquí — cada animación se encarga
+    // de su propio default sensato (p.ej. icosphere arranca con un tilt para
+    // no mostrar el patrón geodésico simétrico).
+
+    let raf = 0
+    let cancelled = false
+    const loop = (time: number) => {
+      if (cancelled) return
+      handle.render(time)
+      raf = requestAnimationFrame(loop)
+    }
+    raf = requestAnimationFrame(loop)
+
+    return () => {
+      cancelled = true
+      cancelAnimationFrame(raf)
+      handle.canvas.removeEventListener("pointermove", onPointerMove)
+      if (handle.canvas.parentElement === stage) {
+        stage.removeChild(handle.canvas)
+      }
+      handle.dispose()
+    }
+  }, [planeId])
+
+  const planeData = planeId ? galleryPlaneData.find((p) => p.id === planeId) : null
+  const hasAnimation = !!planeData?.animationId
 
   return (
     <AnimatePresence>
-      {demo && (
+      {planeId && (
         <motion.div
           className="dg-modal-backdrop"
           initial={{ opacity: 0 }}
@@ -177,14 +128,29 @@ export function AnimationModal({ planeId, onClose }: Props) {
             >
               <X size={18} />
             </button>
-            <div className="dg-modal__stage">{demo.render()}</div>
+            <div
+              ref={stageRef}
+              className="dg-modal__stage"
+              style={
+                hasAnimation
+                  ? {
+                      // Cuando hay animación WebGL, dejamos que el canvas pinte
+                      // el fondo (cada demo trae su clearColor). Quitamos el
+                      // gradiente decorativo del stage para no enmascararlo.
+                      background: "transparent",
+                      padding: 0,
+                      overflow: "hidden",
+                    }
+                  : undefined
+              }
+            />
             <div className="dg-modal__body">
               <p className="dg-modal__eyebrow">
-                {t("animaciones.modal.demoLabel")} · {demo.id}
+                {t("animaciones.modal.demoLabel")} · {planeId}
               </p>
-              <h2 className="dg-modal__title">{t(`animaciones.modal.${demo.id}.title`)}</h2>
+              <h2 className="dg-modal__title">{t(`animaciones.modal.${planeId}.title`)}</h2>
               <p className="dg-modal__description">
-                {t(`animaciones.modal.${demo.id}.description`)}
+                {t(`animaciones.modal.${planeId}.description`)}
               </p>
             </div>
           </motion.div>
