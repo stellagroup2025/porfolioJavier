@@ -18,6 +18,7 @@ import { SectionLink } from "@/components/section-link";
 import { useTransition } from "@/components/page-transition/TransitionProvider";
 import {
   RevealerTransition,
+  MOBILE_REVEALER_DURATIONS,
   type RevealerDirection,
   type RevealerPhase,
 } from "@/components/page-transition/RevealerTransition";
@@ -58,10 +59,21 @@ export default function Portfolio() {
   const handleSectionChange = async (section: string) => {
     if (activeSection === section || isTransitioning) return;
 
+    // Mobile usa una cortina diferente (transform-only, GPU). Las
+    // duraciones son MUCHO más cortas (~760ms total vs 3200ms desktop)
+    // para que no se sienta laggy en dispositivos con GPU modesta.
+    const timing = isMobile
+      ? {
+          cover: MOBILE_REVEALER_DURATIONS.covering * 1000,
+          hold: MOBILE_REVEALER_DURATIONS.covered * 1000,
+          uncover: MOBILE_REVEALER_DURATIONS.uncovering * 1000,
+        }
+      : { cover: 1200, hold: 800, uncover: 1200 };
+
     setIsTransitioning(true);
     setRevealerDirection(section === "home" ? "backward" : "forward");
     setRevealerPhase("covering");
-    await new Promise((resolve) => setTimeout(resolve, 1200));
+    await new Promise((resolve) => setTimeout(resolve, timing.cover));
 
     setRevealerPhase("covered");
     setActiveSection(section);
@@ -69,9 +81,9 @@ export default function Portfolio() {
       setActiveProject(null);
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    await new Promise((resolve) => setTimeout(resolve, timing.hold));
     setRevealerPhase("uncovering");
-    await new Promise((resolve) => setTimeout(resolve, 1200));
+    await new Promise((resolve) => setTimeout(resolve, timing.uncover));
 
     setRevealerPhase("idle");
     setIsTransitioning(false);
