@@ -173,14 +173,21 @@ export function Contact() {
         <div className="absolute bottom-[10%] left-[10%] w-[150px] h-[150px] rounded-full bg-[#d1d1d1]/[0.3] blur-3xl" />
       </div>
 
-      {/* Título animado posicionado más hacia el centro-derecha */}
+      {/* Título animado: en mobile lo contenemos al viewport (left-4 right-4)
+          en sm+ recupera el posicionamiento original empujado al centro-
+          derecha. Sin esto la cita (max-w-md = 448px) se salía del viewport
+          mobile. */}
       <div
-        className="absolute top-1/2 left-1/2 transform -translate-y-1/2 translate-x-[10%] sm:translate-x-[15%] md:translate-x-[20%] z-10"
+        className={cn(
+          "absolute z-10 -translate-y-1/2",
+          "left-4 right-4 top-[42%]",
+          "sm:left-1/2 sm:right-auto sm:top-1/2 sm:translate-x-[15%] md:translate-x-[20%]",
+        )}
         ref={containerRef}
       >
         <motion.h1
           className={cn(
-            "text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-light tracking-tight overflow-hidden text-foreground",
+            "text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-light tracking-tight overflow-hidden text-foreground",
             playfair.className
           )}
           variants={containerVariants}
@@ -205,7 +212,7 @@ export function Contact() {
         {/* Cita en cursiva */}
         <motion.p
           className={cn(
-            "text-sm sm:text-base md:text-lg font-light italic text-foreground/70 mt-4 sm:mt-6 md:mt-8 max-w-md",
+            "text-sm sm:text-base md:text-lg font-light italic text-foreground/70 mt-4 sm:mt-6 md:mt-8 max-w-full sm:max-w-md",
             cormorant.className
           )}
           variants={quoteVariants}

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Pacifico } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { mousePositionRef } from "@/lib/mouse-light";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useEffect, useRef } from "react";
 import {
   ChevronRight,
@@ -35,6 +36,29 @@ function CosmicShape({
   rotate?: number;
   gradient?: string;
 }) {
+  const isMobile = useIsMobile();
+
+  // Mobile: versión estática (igual patrón que ElegantShape/WorkShape/AboutShape).
+  if (isMobile) {
+    return (
+      <div
+        className={cn("absolute", className)}
+        style={{ transform: `rotate(${rotate}deg)` }}
+      >
+        <div style={{ width, height }} className="relative">
+          <div
+            className={cn(
+              "absolute inset-0 rounded-full",
+              "bg-gradient-to-r to-transparent",
+              gradient,
+              "border border-foreground/[0.08]",
+            )}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       initial={{
@@ -145,6 +169,7 @@ function ElegantShape({
   const scale = useViewportScale();
   const scaledWidth = width * scale;
   const scaledHeight = height * scale;
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     // Los efectos de luz son solo para desktop. En mobile/tablet no hay
@@ -186,6 +211,41 @@ function ElegantShape({
     rafId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafId);
   }, []);
+
+  // En mobile devolvemos una versión ESTÁTICA: posición, gradiente y
+  // rotación finales sin motion, sin filter, sin backdrop-blur, sin
+  // etched, sin halo reactivo. La idea visual se mantiene pero el coste
+  // por figura es ~1 paint en vez de capas GPU con filtros compuestos.
+  if (isMobile) {
+    return (
+      <div
+        className={cn("absolute", className)}
+        style={{ transform: `rotate(${rotate}deg)` }}
+      >
+        <div
+          style={{ width: scaledWidth, height: scaledHeight }}
+          className="relative"
+        >
+          <div
+            className={cn(
+              "absolute inset-0",
+              shape === "triangle" ? "" : "rounded-sm",
+              "bg-gradient-to-r to-transparent",
+              gradient,
+              "border border-foreground/[0.05]",
+            )}
+            style={{
+              clipPath:
+                shape === "triangle"
+                  ? "polygon(50% 0%, 0% 100%, 100% 100%)"
+                  : undefined,
+              boxShadow: "0 8px 32px 0 rgba(0,0,0,0.05)",
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -596,6 +656,7 @@ function AnimatedCanvas() {
 // Fondo geométrico con muchas más figuras
 export function GeometricBackground() {
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     let rafId = 0;
@@ -660,8 +721,9 @@ export function GeometricBackground() {
       <div className="absolute inset-0 bg-background"></div>
       <div className="absolute inset-0 bg-gradient-to-br from-[#e1dbd6]/[0.15] via-transparent to-[#d1d1d1]/[0.15] blur-3xl" />
 
-      {/* Canvas animado con muchas figuras */}
-      <AnimatedCanvas />
+      {/* Canvas animado con muchas figuras — solo desktop. En mobile el
+          dibujo continuo de 50 partículas + 12 shapes en 2D causaba lag. */}
+      {!isMobile && <AnimatedCanvas />}
 
       {/* Muchas más formas geométricas */}
       <div className="absolute inset-0 overflow-hidden">
@@ -841,6 +903,7 @@ export function GeometricBackground() {
 
 // Resto de componentes sin cambios...
 export function CosmicBackground() {
+  const isMobile = useIsMobile();
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -918,24 +981,27 @@ export function MinimalBackground() {
       {/* Base background */}
       <div className="absolute inset-0 z-0 bg-background"></div>
 
-      {/* Subtle particles */}
-      <div className="absolute inset-0 overflow-hidden">
-        {Array.from({ length: 30 }).map((_, i) => (
-          <MinimalParticle
-            key={i}
-            delay={i * 0.3}
-            size={Math.random() * 6 + 2}
-            duration={Math.random() * 20 + 15}
-            className={`left-[${Math.random() * 100}%] top-[${
-              Math.random() * 100
-            }%]`}
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-          />
-        ))}
-      </div>
+      {/* Subtle particles — solo desktop. 30 motion.divs con animaciones
+          infinitas eran demasiado para mobile. */}
+      {!isMobile && (
+        <div className="absolute inset-0 overflow-hidden">
+          {Array.from({ length: 30 }).map((_, i) => (
+            <MinimalParticle
+              key={i}
+              delay={i * 0.3}
+              size={Math.random() * 6 + 2}
+              duration={Math.random() * 20 + 15}
+              className={`left-[${Math.random() * 100}%] top-[${
+                Math.random() * 100
+              }%]`}
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Subtle light effect */}
       <div className="absolute top-[20%] right-[20%] w-[300px] h-[300px] rounded-full bg-[#d1d1d1]/[0.2] blur-3xl" />
