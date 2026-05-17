@@ -41,6 +41,9 @@ function createTextTexture(title, bgColor, textColor) {
 class Gallery {
   constructor() {
     this.isInitialized = false
+    // Si true, tickAnimations no renderiza ninguna animación. Se activa cuando
+    // el modal de animación está abierto (modal corre su propia instancia).
+    this.animationsPaused = false
 
     this.planes = []
     this.texturesBySource = new Map()
@@ -154,8 +157,12 @@ class Gallery {
 
   /**
    * Llamar cada frame para tick a las animaciones dinámicas (canvas textures).
+   * Si `animationsPaused` está activo (se usa cuando el modal está abierto),
+   * salimos sin renderizar — la animación interactiva del modal tiene su
+   * propio render loop y compartir GPU con la gallery sería derrochar.
    */
   tickAnimations(time) {
+    if (this.animationsPaused) return
     for (let i = 0; i < this.planes.length; i += 1) {
       const plane = this.planes[i]
       const handle = plane.userData.animationHandle
@@ -166,6 +173,10 @@ class Gallery {
       handle.render(time)
       plane.userData.texture.needsUpdate = true
     }
+  }
+
+  setAnimationsPaused(paused) {
+    this.animationsPaused = !!paused
   }
 
   getPlaneLabelData(planeDefinition, index) {
@@ -180,6 +191,9 @@ class Gallery {
       word: label.word || fallback.word,
       pms: label.pms || fallback.pms,
       color: label.color || fallback.color,
+      // Pass-through opcional de techs — si la card no lo declara queda
+      // undefined y Label.js oculta la fila TECH.
+      techs: Array.isArray(label.techs) ? label.techs : undefined,
     }
   }
 

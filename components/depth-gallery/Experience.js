@@ -4,11 +4,23 @@ import { Background } from "./Background"
 import { Label } from "./Label"
 import { TrailController } from "./TrailController"
 
+// Luminancia perceptual aproximada (sRGB) en [0, 1] a partir de un hex
+// "#rrggbb". Sirve para decidir si el texto del frame UI debe ir claro o
+// oscuro en función del color de fondo del plano enfocado.
+function hexLuminance(hex) {
+  if (typeof hex !== "string" || hex.charAt(0) !== "#" || hex.length < 7) return 0
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255
+}
+
 class Experience {
   constructor(container) {
     this.isInitialized = false
     this.isDisposed = false
-    this.frameDarkPlaneCount = 2
+    // Umbral de luminancia para considerar un fondo "claro" → texto oscuro.
+    this.frameDarkTextLumThreshold = 0.55
     this.isFrameTextDark = null
     this.container = container || (typeof document !== "undefined" ? document.body : null)
     this.gallery = new Gallery()
@@ -36,7 +48,15 @@ class Experience {
 
     const nearestPlaneIndex =
       planeBlendData.blend >= 0.5 ? planeBlendData.nextPlaneIndex : planeBlendData.currentPlaneIndex
-    const shouldUseDarkText = nearestPlaneIndex < this.frameDarkPlaneCount
+    const planeConfig = this.gallery.planeConfig[nearestPlaneIndex]
+    if (!planeConfig) return
+
+    // Decisión basada en luminancia perceptual del backgroundColor del plano:
+    // fondo claro → texto oscuro, fondo oscuro → texto claro. Antes era un
+    // contador hardcoded (frameDarkPlaneCount=2) que se quedó obsoleto al
+    // cambiar las paletas de las cards.
+    const lum = hexLuminance(planeConfig.backgroundColor)
+    const shouldUseDarkText = lum > this.frameDarkTextLumThreshold
 
     if (this.isFrameTextDark === shouldUseDarkText) return
 

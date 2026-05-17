@@ -71,10 +71,16 @@ const dictionary: Dictionary = {
     en: "Content generation tool powered by artificial intelligence.",
   },
 
-  // Animaciones page
+  // Animaciones page — hint general (cards con animación WebGL).
   "animaciones.hint": {
     es: "Scroll para navegar · click en la card en foco para ver la animación",
     en: "Scroll to navigate · click the focused card to view the animation",
+  },
+  // Hint corto para las cards de intro / outro (scroll, scroll back) que no
+  // tienen modal asociado.
+  "animaciones.hintScroll": {
+    es: "Scroll para navegar",
+    en: "Scroll to navigate",
   },
 
   // Animation modal demos (titles stay english; descriptions translate)

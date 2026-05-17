@@ -4,6 +4,16 @@ export type AnimationHandle = {
   canvas: HTMLCanvasElement
   render: (time: number) => void
   dispose: () => void
+  /** Coordenadas normalizadas (0..1) origen top-left.
+   *  Solo implementado por las animaciones que tenían mouse en el demo original
+   *  (icosphere, quantum, physics). El resto omite el método. */
+  setMouse?: (x: number, y: number) => void
+}
+
+export type AnimationFactoryOptions = {
+  /** Si true, la animación lee mouse via setMouse en vez de usar las
+   *  sustituciones procedurales (sin/cos, valores fijos, etc.). */
+  interactive?: boolean
 }
 
 const VERTEX_SHADER = /* glsl */ `
@@ -53,7 +63,12 @@ function makePointTexture() {
   return texture
 }
 
-export function createGalaxy(width: number, height: number): AnimationHandle {
+export function createGalaxy(
+  width: number,
+  height: number,
+  _opts?: AnimationFactoryOptions,
+): AnimationHandle {
+  // galaxy no tenía mouse en el demo original — el flag se ignora.
   const canvas = document.createElement("canvas")
   canvas.width = width
   canvas.height = height

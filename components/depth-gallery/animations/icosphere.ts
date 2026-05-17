@@ -1,6 +1,6 @@
 import * as THREE from "three"
 import { mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js"
-import type { AnimationHandle } from "./galaxy"
+import type { AnimationFactoryOptions, AnimationHandle } from "./galaxy"
 
 const VERTEX_SHADER = /* glsl */ `
 attribute float size;
@@ -51,7 +51,12 @@ function backOut(t: number, s = 1.70158): number {
   return u * u * ((s + 1) * u + s) + 1
 }
 
-export function createIcosphere(width: number, height: number): AnimationHandle {
+export function createIcosphere(
+  width: number,
+  height: number,
+  opts?: AnimationFactoryOptions,
+): AnimationHandle {
+  const interactive = opts?.interactive === true
   const canvas = document.createElement("canvas")
   canvas.width = width
   canvas.height = height
@@ -119,14 +124,41 @@ export function createIcosphere(width: number, height: number): AnimationHandle 
   const halfPeriod = 4
   const period = halfPeriod * 2
 
+  // Estado de mouse en modo interactive. Default no-centrado (0.65, 0.4) para
+  // que el primer frame tenga ya algo de tilt: el icosaedro a orientación
+  // perfectamente simétrica (0,0,0) deja ver las líneas geodésicas de su
+  // tessellation y parece que hay "clumps" de puntos. El demo original tampoco
+  // arrancaba en (0,0,0) — `var mouse = new THREE.Vector2(0.8, 0.5)`.
+  let mouseTargetX = 0.65
+  let mouseTargetY = 0.4
+  let mouseSmoothX = 0.65
+  let mouseSmoothY = 0.4
+
   function render(time: number) {
     if (isDisposed) return
     const t = time * 0.001
 
-    // Rotación suave para que la animación tenga vida sin necesidad de mouse hover.
-    dots.rotation.y = t * 0.18
-    dots.rotation.x = Math.sin(t * 0.35) * 0.35
-    dots.rotation.z = Math.cos(t * 0.27) * 0.18
+    if (interactive) {
+      // Lerp con k≈0.04 → llega a ~95% del target en ~75 frames ≈ 1.25s.
+      // Aproxima el "fast-then-slow" de Power1.easeOut sobre 4s del demo.
+      const k = 0.04
+      mouseSmoothX += (mouseTargetX - mouseSmoothX) * k
+      mouseSmoothY += (mouseTargetY - mouseSmoothY) * k
+      // Demo original: rotation.x = mouse.y*π/2, rotation.z = mouse.x*π/5,
+      // con mouse en rango [-0.5, 0.5]. Aquí mouseSmooth viene en [0, 1],
+      // así que centramos restando 0.5.
+      dots.rotation.x = (mouseSmoothY - 0.5) * Math.PI * 0.5
+      dots.rotation.z = (mouseSmoothX - 0.5) * Math.PI * 0.2
+      // Rotación Y procedural muy lenta (1 vuelta cada ~2 minutos): no estaba
+      // en el demo original, pero sin ella las líneas geodésicas del icosaedro
+      // quedan estáticas y crean falsos clumps cuando el cursor no se mueve.
+      dots.rotation.y = t * 0.05
+    } else {
+      // Rotación procedural — para vista en la card sin cursor.
+      dots.rotation.y = t * 0.18
+      dots.rotation.x = Math.sin(t * 0.35) * 0.35
+      dots.rotation.z = Math.cos(t * 0.27) * 0.18
+    }
 
     const pos = positionAttr.array as Float32Array
     for (let i = 0; i < count; i += 1) {
@@ -157,5 +189,10 @@ export function createIcosphere(width: number, height: number): AnimationHandle 
     renderer.dispose()
   }
 
-  return { canvas, render, dispose }
+  function setMouse(x: number, y: number) {
+    mouseTargetX = x
+    mouseTargetY = y
+  }
+
+  return { canvas, render, dispose, setMouse }
 }

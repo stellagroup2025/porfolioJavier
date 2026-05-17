@@ -199,6 +199,15 @@ class Engine {
     this._overlayPlaneIndex = idx
   }
 
+  /**
+   * Pausa el render loop de las animaciones inyectadas como textura. Cuando
+   * el modal está abierto y tiene su propio render, esto evita renderizar dos
+   * veces lo mismo y libera GPU.
+   */
+  setAnimationsPaused(paused) {
+    this.experience.gallery.setAnimationsPaused(paused)
+  }
+
   dispose() {
     this.isRunning = false
 

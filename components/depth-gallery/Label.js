@@ -11,6 +11,8 @@ class Label {
     this.rgbValueElement = null
     this.hexValueElement = null
     this.pmsValueElement = null
+    this.techRowElement = null
+    this.techValueElement = null
     this.activePlaneIndex = -1
   }
 
@@ -41,6 +43,10 @@ class Label {
             <dt>PMS</dt>
             <dd class="dg-plane-label-card__value dg-plane-label-card__value--pms"></dd>
           </div>
+          <div class="dg-plane-label-card__row dg-plane-label-card__row--tech">
+            <dt>TECH</dt>
+            <dd class="dg-plane-label-card__value dg-plane-label-card__value--tech"></dd>
+          </div>
         </dl>
       </article>
     `
@@ -54,6 +60,8 @@ class Label {
       rgbValueElement: element.querySelector(".dg-plane-label-card__value--rgb"),
       hexValueElement: element.querySelector(".dg-plane-label-card__value--hex"),
       pmsValueElement: element.querySelector(".dg-plane-label-card__value--pms"),
+      techRowElement: element.querySelector(".dg-plane-label-card__row--tech"),
+      techValueElement: element.querySelector(".dg-plane-label-card__value--tech"),
     }
   }
 
@@ -69,6 +77,8 @@ class Label {
       rgbValueElement,
       hexValueElement,
       pmsValueElement,
+      techRowElement,
+      techValueElement,
     } = this.createElement()
 
     this.overlayElement = element
@@ -79,6 +89,8 @@ class Label {
     this.rgbValueElement = rgbValueElement
     this.hexValueElement = hexValueElement
     this.pmsValueElement = pmsValueElement
+    this.techRowElement = techRowElement
+    this.techValueElement = techValueElement
     this.overlayElement.style.opacity = "0"
 
     this.container.append(this.overlayElement)
@@ -171,6 +183,17 @@ class Label {
     this.rgbValueElement.textContent = colorSpecs.rgb
     this.hexValueElement.textContent = colorSpecs.hex
     this.pmsValueElement.textContent = colorSpecs.pms
+
+    // Fila TECH: solo se muestra si la card declara `techs`. Cards de
+    // intro/outro (scroll, scroll back) la ocultan.
+    const techs = Array.isArray(labelData.techs) ? labelData.techs : null
+    if (techs && techs.length > 0 && this.techRowElement && this.techValueElement) {
+      this.techValueElement.textContent = techs.join(" · ")
+      this.techRowElement.style.display = ""
+    } else if (this.techRowElement) {
+      this.techRowElement.style.display = "none"
+    }
+
     this.overlayElement.style.color = labelData.color || ""
 
     this.activePlaneIndex = planeIndex
@@ -203,6 +226,8 @@ class Label {
     this.rgbValueElement = null
     this.hexValueElement = null
     this.pmsValueElement = null
+    this.techRowElement = null
+    this.techValueElement = null
     this.activePlaneIndex = -1
   }
 }

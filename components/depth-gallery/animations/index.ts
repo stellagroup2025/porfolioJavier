@@ -1,10 +1,18 @@
-import type { AnimationHandle } from "./galaxy"
+import type { AnimationFactoryOptions, AnimationHandle } from "./galaxy"
 import { createGalaxy } from "./galaxy"
 import { createIcosphere } from "./icosphere"
+import { createQuantum } from "./quantum"
+import { createPhysics } from "./physics"
+import { createHeuristics } from "./heuristics"
+import { createHawking } from "./hawking"
 
-export type { AnimationHandle }
+export type { AnimationFactoryOptions, AnimationHandle }
 
-type AnimationFactory = (width: number, height: number) => AnimationHandle
+export type AnimationFactory = (
+  width: number,
+  height: number,
+  opts?: AnimationFactoryOptions,
+) => AnimationHandle
 
 /**
  * Registry de animaciones disponibles para los planos de la depth gallery.
@@ -13,4 +21,8 @@ type AnimationFactory = (width: number, height: number) => AnimationHandle
 export const animationRegistry: Record<string, AnimationFactory> = {
   galaxy: createGalaxy,
   icosphere: createIcosphere,
+  quantum: createQuantum,
+  physics: createPhysics,
+  heuristics: createHeuristics,
+  hawking: createHawking,
 }
