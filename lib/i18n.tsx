@@ -39,6 +39,7 @@ const dictionary: Dictionary = {
   "home.technologies": { es: "Tecnologías", en: "Technologies" },
 
   // Navigation (TypographicNavigation labels)
+  "nav.home": { es: "Inicio", en: "Home" },
   "nav.work": { es: "Trabajo", en: "Work" },
   "nav.services": { es: "Servicios", en: "Services" },
   "nav.about": { es: "Sobre mí", en: "About" },
@@ -50,7 +51,7 @@ const dictionary: Dictionary = {
     es: "Una selección de mis trabajos más recientes y destacados.",
     en: "A selection of my most recent and notable work.",
   },
-  "work.project.ecommerce.title": { es: "E-commerce Platform", en: "E-commerce Platform" },
+  "work.project.ecommerce.title": { es: "Plataforma E-commerce", en: "E-commerce Platform" },
   "work.project.ecommerce.description": {
     es: "Plataforma de comercio electrónico completa con gestión de inventario, carrito de compras, pasarela de pagos y panel de administración.",
     en: "Complete e-commerce platform with inventory management, shopping cart, payment gateway and admin panel.",
@@ -60,12 +61,12 @@ const dictionary: Dictionary = {
     es: "Galería de demos de animaciones interactivas creadas con Framer Motion y React.",
     en: "Gallery of interactive animation demos built with Framer Motion and React.",
   },
-  "work.project.mobileapp.title": { es: "Mobile App", en: "Mobile App" },
+  "work.project.mobileapp.title": { es: "App Móvil", en: "Mobile App" },
   "work.project.mobileapp.description": {
     es: "Aplicación móvil para gestión de tareas y productividad personal.",
     en: "Mobile app for task management and personal productivity.",
   },
-  "work.project.aigenerator.title": { es: "AI Content Generator", en: "AI Content Generator" },
+  "work.project.aigenerator.title": { es: "Generador de Contenido IA", en: "AI Content Generator" },
   "work.project.aigenerator.description": {
     es: "Herramienta de generación de contenido utilizando inteligencia artificial.",
     en: "Content generation tool powered by artificial intelligence.",
