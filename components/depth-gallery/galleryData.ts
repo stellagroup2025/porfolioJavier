@@ -14,6 +14,9 @@ export type GalleryPlane = {
     pms: string
     color: string
   }
+  /** Id de animación en el registry. La animación se renderiza a canvas oculto
+   * y se inyecta como textura del plano. */
+  animationId?: string
 }
 
 export const galleryPlaneData: GalleryPlane[] = [
@@ -38,23 +41,25 @@ export const galleryPlaneData: GalleryPlane[] = [
     textBgColor: "#80455a",
     textColor: "#f4f4f4",
     position: { x: 0.8, y: 0 },
-    backgroundColor: "#fffaf0",
-    blob1Color: "#d29a41",
-    blob2Color: "#bb96af",
-    label: { word: "scale pulse", pms: "transform · 02", color: "#2e2e2e" },
+    backgroundColor: "#0a0a14",
+    blob1Color: "#3b2451",
+    blob2Color: "#1e1a30",
+    label: { word: "galaxy", pms: "webgl · 02", color: "#f4f4f4" },
+    animationId: "galaxy",
   },
   {
     id: "rotate",
     title: "Rotate",
-    fallbackColor: "#fa7b71",
-    accentColor: "#fa7b71",
-    textBgColor: "#fa7b71",
-    textColor: "#1a1a1a",
+    fallbackColor: "#59c384",
+    accentColor: "#59c384",
+    textBgColor: "#59c384",
+    textColor: "#0f2a1d",
     position: { x: -0.7, y: 0 },
-    backgroundColor: "#5f81ab",
-    blob1Color: "#f88b8d",
-    blob2Color: "#cfbbdd",
-    label: { word: "rotate loop", pms: "transform · 03", color: "#f4f4f4" },
+    backgroundColor: "#1a3a2a",
+    blob1Color: "#3aa56a",
+    blob2Color: "#7fd6a5",
+    label: { word: "icosphere", pms: "webgl · 03", color: "#f4f4f4" },
+    animationId: "icosphere",
   },
   {
     id: "slide",

@@ -134,7 +134,7 @@ export function PolygonTransition({ phase }: { phase: Phase }) {
         animate={{ opacity: phase === "covered" ? 1 : 0 }}
         transition={{ duration: 0.25 }}
       >
-        <span className="text-[10px] tracking-[0.4em] uppercase font-light">
+        <span className="text-[clamp(16px,1.6vw,24px)] tracking-[0.5em] uppercase font-light">
           loading
         </span>
       </motion.div>
