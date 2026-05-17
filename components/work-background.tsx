@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 function WorkShape({
   className,
@@ -21,6 +22,48 @@ function WorkShape({
   gradient?: string;
   shape?: "circle" | "square" | "triangle" | "hexagon" | "diamond";
 }) {
+  const isMobile = useIsMobile();
+
+  const shapeClipPath =
+    shape === "triangle"
+      ? "polygon(50% 0%, 0% 100%, 100% 100%)"
+      : shape === "hexagon"
+        ? "polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%)"
+        : shape === "diamond"
+          ? "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)"
+          : undefined;
+
+  const shapeRadius =
+    shape === "circle"
+      ? "rounded-full"
+      : shape === "square" || shape === "hexagon" || shape === "diamond"
+        ? "rounded-lg"
+        : "";
+
+  // Mobile: versión estática sin motion, sin backdrop-blur, sin animación
+  // de entrada ni bobbing. Solo la forma con su gradiente y posición.
+  if (isMobile) {
+    return (
+      <div
+        className={cn("absolute", className)}
+        style={{ transform: `rotate(${rotate}deg)` }}
+      >
+        <div style={{ width, height }} className="relative">
+          <div
+            className={cn(
+              "absolute inset-0",
+              shapeRadius,
+              "bg-gradient-to-br to-transparent",
+              gradient,
+              "border border-foreground/[0.08]",
+            )}
+            style={{ clipPath: shapeClipPath }}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       initial={{
@@ -345,6 +388,7 @@ function AnimatedCanvas() {
 }
 
 export function WorkBackground() {
+  const isMobile = useIsMobile();
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -355,7 +399,7 @@ export function WorkBackground() {
     >
       <div className="absolute inset-0  aaaa" />
 
-      <AnimatedCanvas />
+      {!isMobile && <AnimatedCanvas />}
 
       {/* Muchas más formas geométricas */}
       <div className="absolute inset-0 overflow-hidden">
