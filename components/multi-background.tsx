@@ -159,7 +159,15 @@ function ElegantShape({
         const dist = Math.hypot(mouseX - cx, mouseY - cy);
         const reach = 460;
         const proximity = Math.max(0, 1 - dist / reach); // 0..1
-        const eased = proximity * proximity; // squared for sharper falloff
+        // Hasta que el usuario mueva el cursor por primera vez, todas las
+        // figuras quedan "apagadas". Antes solo se notaba un halo cremoso
+        // muy sutil en las figuras cercanas al centro; con la capa etched
+        // ese halo inicial empezó a mostrar contenido (líneas del wireframe)
+        // y se percibía como "el halo aparece al cargar". Gateamos por
+        // hasMoved para conservar la intención original.
+        const eased = mousePositionRef.current.hasMoved
+          ? proximity * proximity
+          : 0;
 
         // Highlight position relative to the shape (where the light "hits")
         const relX = ((mouseX - rect.left) / Math.max(rect.width, 1)) * 100;
@@ -572,6 +580,18 @@ export function GeometricBackground() {
     const handlePointerMove = (event: PointerEvent) => {
       targetX = event.clientX / window.innerWidth;
       targetY = event.clientY / window.innerHeight;
+      // Primer movimiento: snap completo. Forzamos current al target Y
+      // escribimos la ref globalmente en este mismo handler, sin esperar al
+      // siguiente tick. Esto evita que un ElegantShape pueda leer la ref con
+      // valor (0.5, 0.5) en un frame intermedio entre este event y el tick
+      // del BG, lo que generaba el efecto de "halo apareciendo desde el
+      // centro hacia el cursor" durante las primeras frames.
+      if (!mousePositionRef.current.hasMoved) {
+        currentX = targetX;
+        currentY = targetY;
+        mousePositionRef.current.x = targetX;
+        mousePositionRef.current.y = targetY;
+      }
       mousePositionRef.current.hasMoved = true;
     };
 
